@@ -68,20 +68,20 @@ class BP_Group_Name_Suggester {
                 <div class="topic-selector">
                     <label><?php _e('Select your group topic:', 'bp-group-name-suggester'); ?></label>
                     <div class="topic-buttons">
-                        <button type="button" class="topic-btn" data-topic="technology">🖥️ Technology</button>
-                        <button type="button" class="topic-btn" data-topic="arts">🎨 Arts & Creative</button>
-                        <button type="button" class="topic-btn" data-topic="sports">⚽ Sports & Fitness</button>
-                        <button type="button" class="topic-btn" data-topic="music">🎵 Music</button>
-                        <button type="button" class="topic-btn" data-topic="education">📚 Education & Learning</button>
-                        <button type="button" class="topic-btn" data-topic="business">💼 Business & Professional</button>
-                        <button type="button" class="topic-btn" data-topic="health">💚 Health & Wellness</button>
-                        <button type="button" class="topic-btn" data-topic="gaming">🎮 Gaming</button>
-                        <button type="button" class="topic-btn" data-topic="travel">✈️ Travel & Adventure</button>
-                        <button type="button" class="topic-btn" data-topic="food">🍽️ Food & Cooking</button>
-                        <button type="button" class="topic-btn" data-topic="nature">🌿 Nature & Environment</button>
-                        <button type="button" class="topic-btn" data-topic="social">👥 Social & Community</button>
-                        <button type="button" class="topic-btn" data-topic="hobbies">🎯 Hobbies & Interests</button>
-                        <button type="button" class="topic-btn" data-topic="random">🎲 Random Mix</button>
+                        <button type="button" class="topic-btn" data-topic="technology"><span class="topic-icon">&lt;/&gt;</span> Technology</button>
+                        <button type="button" class="topic-btn" data-topic="arts"><span class="topic-icon">◈</span> Arts & Creative</button>
+                        <button type="button" class="topic-btn" data-topic="sports"><span class="topic-icon">◉</span> Sports & Fitness</button>
+                        <button type="button" class="topic-btn" data-topic="music"><span class="topic-icon">♪</span> Music</button>
+                        <button type="button" class="topic-btn" data-topic="education"><span class="topic-icon">◊</span> Education & Learning</button>
+                        <button type="button" class="topic-btn" data-topic="business"><span class="topic-icon">▣</span> Business & Professional</button>
+                        <button type="button" class="topic-btn" data-topic="health"><span class="topic-icon">+</span> Health & Wellness</button>
+                        <button type="button" class="topic-btn" data-topic="gaming"><span class="topic-icon">▲</span> Gaming</button>
+                        <button type="button" class="topic-btn" data-topic="travel"><span class="topic-icon">➤</span> Travel & Adventure</button>
+                        <button type="button" class="topic-btn" data-topic="food"><span class="topic-icon">◆</span> Food & Cooking</button>
+                        <button type="button" class="topic-btn" data-topic="nature"><span class="topic-icon">❋</span> Nature & Environment</button>
+                        <button type="button" class="topic-btn" data-topic="social"><span class="topic-icon">○</span> Social & Community</button>
+                        <button type="button" class="topic-btn" data-topic="hobbies"><span class="topic-icon">✦</span> Hobbies & Interests</button>
+                        <button type="button" class="topic-btn" data-topic="random"><span class="topic-icon">※</span> Random Mix</button>
                     </div>
                 </div>
                 
