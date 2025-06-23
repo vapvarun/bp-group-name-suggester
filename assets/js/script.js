@@ -1,4 +1,5 @@
 jQuery(document).ready(function($) {
+    
     var selectedTopic = null;
     
     // Handle topic selection
@@ -39,10 +40,13 @@ jQuery(document).ready(function($) {
                     }
                     
                     $.each(response.data, function(index, suggestion) {
-                        var card = $('<div class="suggestion-card" data-name="' + escapeHtml(suggestion.name) + '" data-description="' + escapeHtml(suggestion.description) + '">' +
-                            '<h4>' + escapeHtml(suggestion.name) + '</h4>' +
-                            '<p>' + escapeHtml(suggestion.description) + '</p>' +
-                            '<button type="button" class="use-suggestion button-small">Use This Name</button>' +
+                        // Create card with data attributes
+                        var card = $('<div class="suggestion-card" ' +
+                            'data-name="' + suggestion.name.replace(/"/g, '&quot;') + '" ' +
+                            'data-description="' + suggestion.description.replace(/"/g, '&quot;') + '">' +
+                            '<h4>' + suggestion.name + '</h4>' +
+                            '<p>' + suggestion.description + '</p>' +
+                            '<button type="button" class="use-suggestion-btn">Use This Name</button>' +
                             '</div>');
                         
                         if (initial) {
@@ -61,29 +65,62 @@ jQuery(document).ready(function($) {
         });
     }
     
-    // Handle suggestion selection
-    $(document).on('click', '.use-suggestion', function() {
-        var card = $(this).closest('.suggestion-card');
-        var name = card.data('name');
-        var description = card.data('description');
+    // Make entire card clickable
+    $(document).on('click', '.suggestion-card', function(e) {
+        var card = $(this);
+        var name = card.attr('data-name');
+        var description = card.attr('data-description');
         
-        // Fill in the form fields
-        $('#group-name').val(name);
-        $('#group-desc').val(description);
-        
-        // Trigger change events
-        $('#group-name').trigger('change');
-        $('#group-desc').trigger('change');
+        fillFormFields(name, description);
         
         // Visual feedback
         $('.suggestion-card').removeClass('selected');
         card.addClass('selected');
-        
-        // Smooth scroll to form
-        $('html, body').animate({
-            scrollTop: $('#group-name').offset().top - 100
-        }, 500);
     });
+    
+    // Handle button click specifically
+    $(document).on('click', '.use-suggestion-btn', function(e) {
+        e.stopPropagation();
+        
+        var card = $(this).closest('.suggestion-card');
+        var name = card.attr('data-name');
+        var description = card.attr('data-description');
+        
+        fillFormFields(name, description);
+        
+        // Visual feedback
+        $('.suggestion-card').removeClass('selected');
+        card.addClass('selected');
+    });
+    
+    // Function to fill form fields
+    function fillFormFields(name, description) {
+        var nameField = $('#group-name');
+        var descField = $('#group-desc');
+        
+        // Fill the fields
+        nameField.val(name);
+        descField.val(description);
+        
+        // Trigger events
+        nameField.trigger('change').trigger('input');
+        descField.trigger('change').trigger('input');
+        
+        // Visual feedback - flash green
+        nameField.add(descField).css({
+            'background-color': '#e8f5e9',
+            'transition': 'background-color 0.3s'
+        });
+        
+        setTimeout(function() {
+            nameField.add(descField).css('background-color', '');
+        }, 1000);
+        
+        // Scroll to form
+        $('html, body').animate({
+            scrollTop: nameField.offset().top - 100
+        }, 500);
+    }
     
     // Handle get more suggestions
     $('#get-more-suggestions').on('click', function() {
@@ -103,16 +140,4 @@ jQuery(document).ready(function($) {
         }
     });
     
-    // Helper function to escape HTML
-    function escapeHtml(text) {
-        var map = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#039;'
-        };
-        
-        return text.replace(/[&<>"']/g, function(m) { return map[m]; });
-    }
 });

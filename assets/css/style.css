@@ -164,6 +164,7 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     position: relative;
     overflow: hidden;
+    cursor: pointer;
 }
 
 .suggestion-card:before {
@@ -210,7 +211,7 @@
     line-height: 1.6;
 }
 
-.use-suggestion {
+.use-suggestion-btn {
     background: #0073aa;
     color: white;
     border: none;
@@ -224,13 +225,13 @@
     letter-spacing: 0.3px;
 }
 
-.use-suggestion:hover {
+.use-suggestion-btn:hover {
     background: #005a87;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0,115,170,0.3);
 }
 
-.use-suggestion:active {
+.use-suggestion-btn:active {
     transform: translateY(0);
 }
 
@@ -359,7 +360,7 @@
 
 /* Focus States */
 .topic-btn:focus,
-.use-suggestion:focus,
+.use-suggestion-btn:focus,
 #get-more-suggestions:focus {
     outline: none;
     box-shadow: 0 0 0 3px rgba(0,115,170,0.2);
