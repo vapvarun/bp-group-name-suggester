@@ -35,7 +35,8 @@ class BP_Group_Name_Suggester {
      * Constructor
      */
     public function __construct() {
-        add_action('plugins_loaded', array($this, 'init'));
+        // Priority 20: after BuddyPress has set up its active components on plugins_loaded:10.
+        add_action('plugins_loaded', array($this, 'init'), 20);
     }
     
     /**
@@ -45,6 +46,12 @@ class BP_Group_Name_Suggester {
         // Check if BuddyPress is active
         if (!function_exists('buddypress')) {
             add_action('admin_notices', array($this, 'buddypress_required_notice'));
+            return;
+        }
+
+        // The suggester only lives on the Create Group screen.
+        if ( ! bp_is_active( 'groups' ) ) {
+            add_action( 'admin_notices', array( $this, 'groups_component_required_notice' ) );
             return;
         }
         
@@ -96,6 +103,30 @@ class BP_Group_Name_Suggester {
         <?php
     }
     
+    /**
+     * Show admin notice if the BuddyPress Groups component is not active.
+     */
+    public function groups_component_required_notice() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            return;
+        }
+
+        $components_url = bp_get_admin_url( add_query_arg( array( 'page' => 'bp-components' ), 'admin.php' ) );
+        ?>
+        <div class="notice notice-warning">
+            <p>
+                <?php
+                printf(
+                    /* translators: %s: link to the BuddyPress Components settings screen. */
+                    esc_html__( 'BuddyPress Group Name Suggester needs the BuddyPress Groups component. Turn it on in %s.', 'bp-group-name-suggester' ),
+                    '<a href="' . esc_url( $components_url ) . '">' . esc_html__( 'Settings > BuddyPress > Components', 'bp-group-name-suggester' ) . '</a>'
+                );
+                ?>
+            </p>
+        </div>
+        <?php
+    }
+
     /**
      * Add the name suggester section to the group creation form
      */
