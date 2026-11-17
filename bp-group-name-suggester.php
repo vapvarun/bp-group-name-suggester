@@ -397,7 +397,90 @@ class BP_Group_Name_Suggester {
                 'activities' => array('coding together', 'building projects', 'sharing tech tips', 'exploring new technologies', 'developing solutions'),
                 'purposes' => array('advance our technical skills', 'create innovative solutions', 'stay updated with tech trends', 'build amazing projects', 'share knowledge and expertise')
             ),
-            // ... other topics remain the same ...
+            'arts' => array(
+                'prefixes' => array('Artistic', 'Inspired', 'Colorful', 'Imaginative', 'Expressive'),
+                'keywords' => array('Art', 'Painting', 'Sketching', 'Design', 'Photography', 'Illustration', 'Crafts', 'Pottery', 'Sculpture', 'Watercolor'),
+                'nouns' => array('Artists', 'Painters', 'Makers', 'Designers', 'Creators', 'Sketchers', 'Crafters', 'Visionaries', 'Studio', 'Collective'),
+                'activities' => array('sharing our latest work', 'sketching together', 'trading creative feedback', 'exploring new art techniques', 'visiting galleries and exhibitions'),
+                'purposes' => array('grow as artists', 'find fresh inspiration', 'showcase our creations', 'learn new mediums', 'support each other\'s creative journey')
+            ),
+            'sports' => array(
+                'prefixes' => array('Athletic', 'Fearless', 'Unstoppable', 'Strong', 'Victorious'),
+                'keywords' => array('Running', 'Cycling', 'Football', 'Basketball', 'Fitness', 'Training', 'Yoga', 'Hiking', 'Tennis', 'Swimming'),
+                'nouns' => array('Athletes', 'Runners', 'Champions', 'Team', 'Squad', 'Crew', 'Warriors', 'Riders', 'Trainers', 'League'),
+                'activities' => array('training together', 'tracking our progress', 'joining local races and matches', 'sharing workout plans', 'cheering each other on'),
+                'purposes' => array('reach new personal bests', 'stay active and motivated', 'build a stronger team', 'prepare for our next event', 'make fitness fun')
+            ),
+            'music' => array(
+                'prefixes' => array('Harmonic', 'Rhythmic', 'Melodic', 'Acoustic', 'Electric'),
+                'keywords' => array('Music', 'Guitar', 'Piano', 'Jazz', 'Rock', 'Hip Hop', 'Choir', 'Songwriting', 'Drumming', 'Vinyl'),
+                'nouns' => array('Musicians', 'Players', 'Band', 'Ensemble', 'Singers', 'Jammers', 'Collective', 'Producers', 'Listeners', 'Beat Makers'),
+                'activities' => array('jamming together', 'sharing new tracks', 'swapping playlists', 'practicing our instruments', 'writing songs'),
+                'purposes' => array('grow as musicians', 'discover new sounds', 'perform together', 'learn from each other', 'keep live music alive')
+            ),
+            'education' => array(
+                'prefixes' => array('Curious', 'Wise', 'Bright', 'Scholarly', 'Studious'),
+                'keywords' => array('Study', 'Learning', 'Science', 'History', 'Math', 'Language', 'Reading', 'Research', 'Homework', 'Exam Prep'),
+                'nouns' => array('Learners', 'Scholars', 'Students', 'Study Circle', 'Thinkers', 'Mentors', 'Tutors', 'Bookworms', 'Academy', 'Classmates'),
+                'activities' => array('studying together', 'sharing notes and resources', 'reviewing for exams', 'discussing big ideas', 'reading and reflecting'),
+                'purposes' => array('ace our exams', 'learn something new every week', 'help each other understand tough topics', 'build lifelong learning habits', 'grow our knowledge together')
+            ),
+            'business' => array(
+                'prefixes' => array('Professional', 'Strategic', 'Ambitious', 'Driven', 'Savvy'),
+                'keywords' => array('Business', 'Startup', 'Marketing', 'Leadership', 'Sales', 'Finance', 'Entrepreneur', 'Freelance', 'Networking', 'Career'),
+                'nouns' => array('Founders', 'Leaders', 'Professionals', 'Network', 'Partners', 'Mentors', 'Builders', 'Collective', 'Alliance', 'Circle'),
+                'activities' => array('sharing growth strategies', 'networking with peers', 'reviewing business ideas', 'swapping industry insights', 'mentoring new founders'),
+                'purposes' => array('grow our businesses', 'advance our careers', 'open new opportunities', 'learn from real experience', 'build lasting professional connections')
+            ),
+            'health' => array(
+                'prefixes' => array('Radiant', 'Mindful', 'Balanced', 'Vital', 'Thriving'),
+                'keywords' => array('Wellness', 'Mindfulness', 'Nutrition', 'Meditation', 'Self-Care', 'Healthy Living', 'Mental Health', 'Recovery', 'Sleep', 'Wellbeing'),
+                'nouns' => array('Circle', 'Community', 'Collective', 'Seekers', 'Companions', 'Supporters', 'Tribe', 'Allies', 'Friends', 'Network'),
+                'activities' => array('sharing healthy habits', 'meditating together', 'swapping nutrition tips', 'checking in on each other', 'setting wellness goals'),
+                'purposes' => array('feel our best every day', 'build healthier routines', 'support each other\'s wellbeing', 'find calm and balance', 'stay accountable to our goals')
+            ),
+            'gaming' => array(
+                'prefixes' => array('Epic', 'Legendary', 'Elite', 'Pixel', 'Retro'),
+                'keywords' => array('Gaming', 'Esports', 'Console', 'PC Gaming', 'RPG', 'Strategy', 'Board Game', 'Speedrun', 'Co-op', 'Indie Game'),
+                'nouns' => array('Gamers', 'Players', 'Guild', 'Clan', 'Raiders', 'Squad', 'Legends', 'Party', 'Heroes', 'Alliance'),
+                'activities' => array('playing together online', 'planning raids and tournaments', 'sharing tips and builds', 'streaming our sessions', 'trying new releases'),
+                'purposes' => array('level up our skills', 'win more matches together', 'find teammates for every game', 'celebrate great plays', 'have fun and play fair')
+            ),
+            'travel' => array(
+                'prefixes' => array('Wandering', 'Global', 'Adventurous', 'Roaming', 'Intrepid'),
+                'keywords' => array('Travel', 'Adventure', 'Backpacking', 'Road Trip', 'Wanderlust', 'Exploration', 'Camping', 'Expedition', 'City Break', 'Globetrotting'),
+                'nouns' => array('Travelers', 'Explorers', 'Nomads', 'Wanderers', 'Adventurers', 'Globetrotters', 'Voyagers', 'Backpackers', 'Trekkers', 'Journeyers'),
+                'activities' => array('planning trips together', 'sharing travel stories', 'swapping destination tips', 'exploring new places', 'meeting up on the road'),
+                'purposes' => array('see more of the world', 'travel smarter and safer', 'find travel companions', 'discover hidden gems', 'turn trip ideas into real journeys')
+            ),
+            'food' => array(
+                'prefixes' => array('Delicious', 'Savory', 'Tasty', 'Homemade', 'Gourmet'),
+                'keywords' => array('Cooking', 'Baking', 'Recipe', 'Foodie', 'Vegan', 'Grill', 'Kitchen', 'Street Food', 'Pastry', 'Home Chef'),
+                'nouns' => array('Cooks', 'Chefs', 'Bakers', 'Foodies', 'Kitchen Crew', 'Tasters', 'Gourmets', 'Grill Masters', 'Supper Club', 'Food Lovers'),
+                'activities' => array('sharing favorite recipes', 'cooking together', 'trying new cuisines', 'swapping kitchen tips', 'hosting potluck dinners'),
+                'purposes' => array('cook with confidence', 'discover new flavors', 'master tricky recipes', 'share great meals', 'celebrate good food together')
+            ),
+            'nature' => array(
+                'prefixes' => array('Green', 'Wild', 'Sustainable', 'Earthy', 'Evergreen'),
+                'keywords' => array('Nature', 'Gardening', 'Wildlife', 'Conservation', 'Birdwatching', 'Climate', 'Outdoors', 'Forest', 'Ocean', 'Eco'),
+                'nouns' => array('Guardians', 'Gardeners', 'Stewards', 'Explorers', 'Rangers', 'Naturalists', 'Trailblazers', 'Keepers', 'Growers', 'Friends'),
+                'activities' => array('exploring local trails', 'tending community gardens', 'spotting wildlife', 'organizing clean-up days', 'sharing eco-friendly tips'),
+                'purposes' => array('protect our planet', 'live more sustainably', 'connect with the outdoors', 'restore local habitats', 'inspire greener habits')
+            ),
+            'social' => array(
+                'prefixes' => array('Friendly', 'Welcoming', 'Neighborly', 'Together', 'Kind'),
+                'keywords' => array('Community', 'Neighborhood', 'Volunteer', 'Meetup', 'Friendship', 'Local', 'Social', 'Charity', 'Book Club', 'Hangout'),
+                'nouns' => array('Neighbors', 'Friends', 'Volunteers', 'Circle', 'Collective', 'Network', 'Crew', 'Gathering', 'Hub', 'Club'),
+                'activities' => array('meeting up regularly', 'organizing local events', 'volunteering together', 'welcoming new members', 'sharing community news'),
+                'purposes' => array('bring people together', 'make a difference locally', 'build lasting friendships', 'support our neighbors', 'create a welcoming community')
+            ),
+            'hobbies' => array(
+                'prefixes' => array('Handy', 'Curious', 'Crafty', 'Devoted', 'Weekend'),
+                'keywords' => array('Hobby', 'DIY', 'Knitting', 'Woodworking', 'Photography', 'Collecting', 'Model Building', 'Origami', 'Puzzle', 'Chess'),
+                'nouns' => array('Hobbyists', 'Makers', 'Tinkerers', 'Collectors', 'Crafters', 'Enthusiasts', 'Club', 'Workshop', 'Guild', 'Circle'),
+                'activities' => array('working on projects together', 'sharing our latest builds', 'swapping tips and tools', 'hosting weekend workshops', 'showing off our collections'),
+                'purposes' => array('get better at what we love', 'learn new skills', 'finish more projects', 'meet people who share our hobbies', 'turn pastimes into passions')
+            ),
             'random' => array(
                 'prefixes' => array('Amazing', 'Creative', 'Dynamic', 'Fantastic', 'United'),
                 'keywords' => array('Adventure', 'Discovery', 'Connection', 'Innovation', 'Community', 'Experience', 'Journey', 'Vision', 'Dream', 'Future'),
