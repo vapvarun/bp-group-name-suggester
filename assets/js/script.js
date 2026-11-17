@@ -1,6 +1,7 @@
 jQuery(document).ready(function($) {
     
     var selectedTopic = null;
+    var i18n = bpGroupNameSuggester.i18n;
     
     // Handle topic selection
     $('.topic-btn').on('click', function() {
@@ -13,15 +14,41 @@ jQuery(document).ready(function($) {
         
         // Show loading
         $('.suggestions-container').show();
-        $('.suggestions-grid').html('<div class="loading">Generating suggestions...</div>');
+        $('.suggestions-grid').empty();
         $('#get-more-suggestions').hide();
         
         // Get suggestions
         getSuggestions(selectedTopic, true);
     });
     
+    // Announce a state (loading, error, empty) in the live region; an empty message clears it.
+    function setStatus(message, isError, showRetry) {
+        var status = $('.bp-gns-status');
+        status.empty().toggleClass('is-error', !!isError);
+        
+        if (message) {
+            status.append($('<span>').text(message));
+        }
+        
+        if (showRetry) {
+            $('<button type="button" class="button bp-gns-retry">')
+                .text(i18n.retry)
+                .appendTo(status);
+        }
+    }
+    
     // Function to get suggestions
     function getSuggestions(topic, initial) {
+        var moreButton = $('#get-more-suggestions');
+        var spinner = moreButton.next('.spinner');
+        
+        if (initial) {
+            setStatus(i18n.loading);
+        } else {
+            moreButton.prop('disabled', true);
+            spinner.show();
+        }
+        
         $.ajax({
             url: bpGroupNameSuggester.ajax_url,
             type: 'POST',
@@ -30,40 +57,68 @@ jQuery(document).ready(function($) {
                 topic: topic,
                 count: initial ? 20 : 10,
                 nonce: bpGroupNameSuggester.nonce
-            },
-            success: function(response) {
-                if (response.success) {
-                    var grid = $('.suggestions-grid');
-                    
-                    if (initial) {
-                        grid.empty();
-                    }
-                    
-                    $.each(response.data, function(index, suggestion) {
-                        // Create card with data attributes
-                        var card = $('<div class="suggestion-card" ' +
-                            'data-name="' + suggestion.name.replace(/"/g, '&quot;') + '" ' +
-                            'data-description="' + suggestion.description.replace(/"/g, '&quot;') + '">' +
-                            '<h4>' + suggestion.name + '</h4>' +
-                            '<p>' + suggestion.description + '</p>' +
-                            '<button type="button" class="use-suggestion-btn">Use This Name</button>' +
-                            '</div>');
-                        
-                        if (initial) {
-                            card.appendTo(grid);
-                        } else {
-                            card.hide().appendTo(grid).fadeIn(300);
-                        }
-                    });
-                    
-                    $('#get-more-suggestions').show();
-                }
-            },
-            error: function() {
-                $('.suggestions-grid').html('<div class="error">Error generating suggestions. Please try again.</div>');
             }
+        }).done(function(response) {
+            if (!response || !response.success) {
+                showError(response && response.data && response.data.message);
+                return;
+            }
+            
+            var grid = $('.suggestions-grid');
+            
+            if (initial) {
+                grid.empty();
+            }
+            
+            if (!response.data || !response.data.length) {
+                if (initial) {
+                    setStatus(i18n.empty);
+                    moreButton.hide();
+                }
+                return;
+            }
+            
+            setStatus('');
+            
+            $.each(response.data, function(index, suggestion) {
+                // Create card with data attributes
+                var card = $('<div class="suggestion-card" ' +
+                    'data-name="' + suggestion.name.replace(/"/g, '&quot;') + '" ' +
+                    'data-description="' + suggestion.description.replace(/"/g, '&quot;') + '">' +
+                    '<h4>' + suggestion.name + '</h4>' +
+                    '<p>' + suggestion.description + '</p>' +
+                    '<button type="button" class="use-suggestion-btn">Use This Name</button>' +
+                    '</div>');
+                
+                if (initial) {
+                    card.appendTo(grid);
+                } else {
+                    card.hide().appendTo(grid).fadeIn(300);
+                }
+            });
+            
+            moreButton.show();
+        }).fail(function() {
+            showError();
+        }).always(function() {
+            moreButton.prop('disabled', false);
+            spinner.hide();
         });
+        
+        function showError(message) {
+            setStatus(message || i18n.error, true, true);
+            
+            // Keep "Get More" usable when earlier suggestions are still on screen.
+            moreButton.toggle(!initial);
+        }
     }
+    
+    // Retry the last request after a failure
+    $(document).on('click', '.bp-gns-retry', function() {
+        if (selectedTopic) {
+            getSuggestions(selectedTopic, !$('.suggestions-grid').children().length);
+        }
+    });
     
     // Make entire card clickable
     $(document).on('click', '.suggestion-card', function(e) {
@@ -125,18 +180,7 @@ jQuery(document).ready(function($) {
     // Handle get more suggestions
     $('#get-more-suggestions').on('click', function() {
         if (selectedTopic) {
-            var button = $(this);
-            var spinner = button.next('.spinner');
-            
-            button.prop('disabled', true);
-            spinner.show();
-            
             getSuggestions(selectedTopic, false);
-            
-            setTimeout(function() {
-                button.prop('disabled', false);
-                spinner.hide();
-            }, 1000);
         }
     });
     

@@ -25,6 +25,11 @@ class BP_Group_Name_Suggester {
      * Plugin version
      */
     const VERSION = '1.0.0';
+
+    /**
+     * Upper bound for suggestions returned by one request.
+     */
+    const MAX_SUGGESTIONS = 50;
     
     /**
      * Constructor
@@ -46,12 +51,11 @@ class BP_Group_Name_Suggester {
         // Add hooks
         add_action('bp_before_group_details_creation_step', array($this, 'add_name_suggester_section'));
         add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
+        // Logged-in only: the suggester lives on the Create Group screen, which guests never reach.
         add_action('wp_ajax_suggest_group_names', array($this, 'ajax_suggest_group_names'));
-        add_action('wp_ajax_nopriv_suggest_group_names', array($this, 'ajax_suggest_group_names'));
         
         // Add custom AJAX endpoints for extensibility
         add_action('wp_ajax_bp_gns_custom_suggestions', array($this, 'ajax_custom_suggestions'));
-        add_action('wp_ajax_nopriv_bp_gns_custom_suggestions', array($this, 'ajax_custom_suggestions'));
         
         // Initialize hooks
         $this->init_hooks();
@@ -129,6 +133,7 @@ class BP_Group_Name_Suggester {
                     
                     <div class="suggestions-container" style="display: none;">
                         <h4><?php _e('Suggested Names for Your Group:', 'bp-group-name-suggester'); ?></h4>
+                        <div class="bp-gns-status" role="status" aria-live="polite"></div>
                         <div class="suggestions-grid"></div>
                         <div class="suggester-actions">
                             <button type="button" id="get-more-suggestions" class="button" style="display: none;">
@@ -188,7 +193,14 @@ class BP_Group_Name_Suggester {
                 'ajax_url' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('bp_group_name_suggester_nonce'),
                 'providers' => $this->get_active_providers(),
-                'settings' => $this->get_plugin_settings()
+                'settings' => $this->get_plugin_settings(),
+                'i18n' => array(
+                    'loading'  => __( 'Generating suggestions...', 'bp-group-name-suggester' ),
+                    'error'    => __( 'Suggestions could not be loaded. Please try again.', 'bp-group-name-suggester' ),
+                    'empty'    => __( 'No suggestions found for this topic. Try another topic.', 'bp-group-name-suggester' ),
+                    'retry'    => __( 'Try again', 'bp-group-name-suggester' ),
+                    'useName'  => __( 'Use This Name', 'bp-group-name-suggester' ),
+                ),
             );
             
             wp_localize_script('bp-group-name-suggester', 'bpGroupNameSuggester', 
@@ -241,14 +253,14 @@ class BP_Group_Name_Suggester {
      * Handle AJAX request to suggest group names
      */
     public function ajax_suggest_group_names() {
-        // Verify nonce
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'bp_group_name_suggester_nonce')) {
-            wp_die('Security check failed');
+        if ( ! check_ajax_referer( 'bp_group_name_suggester_nonce', 'nonce', false ) ) {
+            wp_send_json_error( array( 'message' => __( 'Your session has expired. Reload the page and try again.', 'bp-group-name-suggester' ) ), 403 );
         }
-        
-        $topic = isset($_POST['topic']) ? sanitize_text_field($_POST['topic']) : 'random';
-        $count = isset($_POST['count']) ? intval($_POST['count']) : 20;
-        $provider = isset($_POST['provider']) ? sanitize_text_field($_POST['provider']) : 'default';
+
+        $topic    = isset( $_POST['topic'] ) ? sanitize_text_field( wp_unslash( $_POST['topic'] ) ) : 'random';
+        $count    = isset( $_POST['count'] ) ? absint( wp_unslash( $_POST['count'] ) ) : 20;
+        $count    = max( 1, min( self::MAX_SUGGESTIONS, $count ) );
+        $provider = isset( $_POST['provider'] ) ? sanitize_text_field( wp_unslash( $_POST['provider'] ) ) : 'default';
         
         // Allow custom suggestion generation
         $suggestions = apply_filters('bp_gns_generate_suggestions', null, $topic, $count, $provider);
@@ -268,9 +280,8 @@ class BP_Group_Name_Suggester {
      * Handle custom AJAX suggestions endpoint
      */
     public function ajax_custom_suggestions() {
-        // Verify nonce
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'bp_group_name_suggester_nonce')) {
-            wp_die('Security check failed');
+        if ( ! check_ajax_referer( 'bp_group_name_suggester_nonce', 'nonce', false ) ) {
+            wp_send_json_error( array( 'message' => __( 'Your session has expired. Reload the page and try again.', 'bp-group-name-suggester' ) ), 403 );
         }
         
         // Allow complete custom handling
