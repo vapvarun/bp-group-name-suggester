@@ -118,11 +118,11 @@ class BP_Group_Name_Suggester {
                     <h3><?php echo apply_filters('bp_gns_heading_text', __('Need Help Naming Your Group?', 'bp-group-name-suggester')); ?></h3>
                     
                     <div class="topic-selector">
-                        <label><?php _e('Select your group topic:', 'bp-group-name-suggester'); ?></label>
-                        <div class="topic-buttons">
+                        <p id="bp-gns-topic-label" class="topic-selector-label"><?php _e('Select your group topic:', 'bp-group-name-suggester'); ?></p>
+                        <div class="topic-buttons" role="group" aria-labelledby="bp-gns-topic-label">
                             <?php foreach ($topics as $key => $topic): ?>
-                                <button type="button" class="topic-btn" data-topic="<?php echo esc_attr($key); ?>">
-                                    <span class="topic-icon"><?php echo esc_html($topic['icon']); ?></span> 
+                                <button type="button" class="topic-btn" data-topic="<?php echo esc_attr($key); ?>" aria-pressed="false">
+                                    <span class="topic-icon" aria-hidden="true"><?php echo esc_html($topic['icon']); ?></span>
                                     <?php echo esc_html($topic['label']); ?>
                                 </button>
                             <?php endforeach; ?>

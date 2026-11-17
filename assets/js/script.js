@@ -9,8 +9,8 @@ jQuery(document).ready(function($) {
         selectedTopic = button.data('topic');
         
         // Visual feedback
-        $('.topic-btn').removeClass('active');
-        button.addClass('active');
+        $('.topic-btn').removeClass('active').attr('aria-pressed', 'false');
+        button.addClass('active').attr('aria-pressed', 'true');
         
         // Show loading
         $('.suggestions-container').show();
@@ -81,14 +81,14 @@ jQuery(document).ready(function($) {
             setStatus('');
             
             $.each(response.data, function(index, suggestion) {
-                // Create card with data attributes
-                var card = $('<div class="suggestion-card" ' +
-                    'data-name="' + suggestion.name.replace(/"/g, '&quot;') + '" ' +
-                    'data-description="' + suggestion.description.replace(/"/g, '&quot;') + '">' +
-                    '<h4>' + suggestion.name + '</h4>' +
-                    '<p>' + suggestion.description + '</p>' +
-                    '<button type="button" class="use-suggestion-btn">Use This Name</button>' +
-                    '</div>');
+                // Build the card from text nodes: provider output is never parsed as HTML.
+                var card = $('<div class="suggestion-card">')
+                    .attr({ 'data-name': suggestion.name, 'data-description': suggestion.description })
+                    .append(
+                        $('<h4>').text(suggestion.name),
+                        $('<p>').text(suggestion.description),
+                        $('<button type="button" class="use-suggestion-btn">').text(i18n.useName)
+                    );
                 
                 if (initial) {
                     card.appendTo(grid);
@@ -120,28 +120,11 @@ jQuery(document).ready(function($) {
         }
     });
     
-    // Make entire card clickable
-    $(document).on('click', '.suggestion-card', function(e) {
+    // One handler: the whole card is the click target, and the button inside bubbles up to it.
+    $(document).on('click', '.suggestion-card', function() {
         var card = $(this);
-        var name = card.attr('data-name');
-        var description = card.attr('data-description');
         
-        fillFormFields(name, description);
-        
-        // Visual feedback
-        $('.suggestion-card').removeClass('selected');
-        card.addClass('selected');
-    });
-    
-    // Handle button click specifically
-    $(document).on('click', '.use-suggestion-btn', function(e) {
-        e.stopPropagation();
-        
-        var card = $(this).closest('.suggestion-card');
-        var name = card.attr('data-name');
-        var description = card.attr('data-description');
-        
-        fillFormFields(name, description);
+        fillFormFields(card.attr('data-name'), card.attr('data-description'));
         
         // Visual feedback
         $('.suggestion-card').removeClass('selected');
@@ -161,14 +144,11 @@ jQuery(document).ready(function($) {
         nameField.trigger('change').trigger('input');
         descField.trigger('change').trigger('input');
         
-        // Visual feedback - flash green
-        nameField.add(descField).css({
-            'background-color': '#e8f5e9',
-            'transition': 'background-color 0.3s'
-        });
+        // Visual feedback: a short highlight styled by the stylesheet, so it follows the theme colours.
+        nameField.add(descField).addClass('bp-gns-filled');
         
         setTimeout(function() {
-            nameField.add(descField).css('background-color', '');
+            nameField.add(descField).removeClass('bp-gns-filled');
         }, 1000);
         
         // Scroll to form
