@@ -1,0 +1,33 @@
+# Dev artifacts excluded from the distributable zip.
+# Runtime needs: bp-group-name-suggester.php, uninstall.php, assets/, languages/, readme.txt.
+.git
+.github
+.gitignore
+.gitattributes
+.gitkeep
+.editorconfig
+.distignore
+.DS_Store
+.idea
+.vscode
+node_modules
+vendor
+tests
+docs
+audit
+dist
+bin
+# Developer markdown, never shipped (readme.txt is kept).
+*.md
+*.map
+*.log
+composer.json
+composer.lock
+package.json
+package-lock.json
+phpcs.xml
+phpcs.xml.dist
+phpstan.neon
+phpstan.neon.dist
+phpstan-baseline.neon
+.contract-audit-baseline.json

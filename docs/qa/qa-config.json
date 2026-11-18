@@ -1,0 +1,29 @@
+{
+  "$schema": "https://wpmediaverse.com/schemas/wp-plugin-qa-config-v1.json",
+  "slug": "bp-group-name-suggester",
+  "name": "BuddyPress Group Name Suggester",
+  "version_constant": "BP_Group_Name_Suggester::VERSION",
+  "main_file": "bp-group-name-suggester.php",
+  "base_url": "http://buddypress-dev.local",
+  "wp_path": null,
+  "autologin_param": "autologin",
+  "known_issues": [],
+  "companion_stack": [ "buddypress", "buddyboss-platform" ],
+  "promises": [
+    { "id": "PR-1", "claim": "on the Create Group details step a member picks a topic and gets distinct name suggestions, and one click fills the group name and description", "source": "readme.txt" },
+    { "id": "PR-2", "claim": "one request never returns more than 50 suggestions, whatever count is sent", "source": "bp-group-name-suggester.php" },
+    { "id": "PR-3", "claim": "a failed or expired request shows an error with a Try again button instead of a silent empty grid", "source": "assets/js/script.js" },
+    { "id": "PR-4", "claim": "with BuddyPress or its Groups component off the plugin stays idle and shows an admin notice, never a fatal", "source": "bp-group-name-suggester.php" },
+    { "id": "PR-5", "claim": "the plugin stores no data, so deleting it leaves nothing behind", "source": "uninstall.php" }
+  ],
+  "personas": [
+    { "login": "journey_subscriber", "role": "subscriber", "ladder": "member-owner" }
+  ],
+  "rest_namespace": null,
+  "front_routes": ["/groups/create/step/group-details/"],
+  "pair": null,
+  "basecamp": null,
+  "modes": ["free"],
+  "report_path": "docs/qa/.last-smoke-pass.json",
+  "supplements_path": null
+}
