@@ -4,10 +4,12 @@
  * Plugin URI: https://wbcomdesigns.com/
  * Description: Advanced randomizer generator names for BuddyPress groups. Generate creative, topic-based group names and descriptions instantly. This powerful name randomizer generator helps users create unique group names with our intelligent suggestion system. Perfect for community builders who need a reliable group name generator with built-in randomizer features.
  * Version: 1.0.0
+ * Requires PHP: 8.1
  * Author: Wbcom Designs
  * Author URI: https://wbcomdesigns.com/
  * License: GPL v2 or later
  * Text Domain: bp-group-name-suggester
+ * Domain Path: /languages
  * Tags: buddypress, group names, randomizer, generator, names, random name generator, group name ideas, name suggester
  *
  * @package BP_Group_Name_Suggester
@@ -39,6 +41,15 @@ class BP_Group_Name_Suggester {
 	public function __construct() {
 		// Priority 20: after BuddyPress has set up its active components on plugins_loaded:10.
 		add_action( 'plugins_loaded', array( $this, 'init' ), 20 );
+		// On init, not earlier: WordPress 6.7+ flags translations loaded before init.
+		add_action( 'init', array( $this, 'load_textdomain' ) );
+	}
+
+	/**
+	 * Load translations from the plugin's languages folder.
+	 */
+	public function load_textdomain() {
+		load_plugin_textdomain( 'bp-group-name-suggester', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 	}
 
 	/**

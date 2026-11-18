@@ -98,8 +98,10 @@ jQuery(document).ready(function($) {
             });
             
             moreButton.show();
-        }).fail(function() {
-            showError();
+        }).fail(function(jqXHR) {
+            // A 403 nonce failure carries the server's message; network errors and non-JSON bodies have none.
+            var json = jqXHR && jqXHR.responseJSON;
+            showError(json && json.data && json.data.message);
         }).always(function() {
             moreButton.prop('disabled', false);
             spinner.hide();

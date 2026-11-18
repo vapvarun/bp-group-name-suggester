@@ -4,9 +4,9 @@
     "slug": "bp-group-name-suggester",
     "version": "1.0.0",
     "textDomain": "bp-group-name-suggester",
-    "domainPath": "",
+    "domainPath": "/languages",
     "requiresWP": "",
-    "requiresPHP": "",
+    "requiresPHP": "8.1",
     "description": "Advanced randomizer generator names for BuddyPress groups. Generate creative, topic-based group names and descriptions instantly. This powerful name randomizer generator helps users create unique group names with our intelligent suggestion system. Perfect for community builders who need a reliable group name generator with built-in randomizer features.",
     "author": "Wbcom Designs",
     "pluginURI": "https://wbcomdesigns.com/",
@@ -30,7 +30,7 @@
         "loggedOut": false,
         "hasNonceCheck": true,
         "file": "bp-group-name-suggester.php",
-        "line": 64
+        "line": 75
       },
       {
         "action": "bp_gns_custom_suggestions",
@@ -39,7 +39,7 @@
         "loggedOut": false,
         "hasNonceCheck": true,
         "file": "bp-group-name-suggester.php",
-        "line": 67
+        "line": 78
       }
     ],
     "adminPages": [],
@@ -76,7 +76,7 @@
           {
             "callback": "function ( $topics",
             "file": "bp-group-name-suggester.php",
-            "line": 637
+            "line": 648
           }
         ]
       },
@@ -90,12 +90,12 @@
           {
             "callback": "array( $this",
             "file": "bp-group-name-suggester.php",
-            "line": 81
+            "line": 92
           },
           {
             "callback": "function ( $providers",
             "file": "bp-group-name-suggester.php",
-            "line": 667
+            "line": 678
           }
         ]
       },
@@ -145,7 +145,7 @@
           {
             "callback": "function ( $vocab",
             "file": "bp-group-name-suggester.php",
-            "line": 648
+            "line": 659
           }
         ]
       }
@@ -164,121 +164,121 @@
           "type": "action",
           "hookName": "bp_gns_init",
           "file": "bp-group-name-suggester.php",
-          "line": 78
+          "line": 89
         },
         {
           "type": "filter",
           "hookName": "bp_gns_template_path",
           "file": "bp-group-name-suggester.php",
-          "line": 144
+          "line": 155
         },
         {
           "type": "action",
           "hookName": "bp_gns_before_suggester",
           "file": "bp-group-name-suggester.php",
-          "line": 152
+          "line": 163
         },
         {
           "type": "filter",
           "hookName": "bp_gns_heading_text",
           "file": "bp-group-name-suggester.php",
-          "line": 154
+          "line": 165
         },
         {
           "type": "action",
           "hookName": "bp_gns_after_topic_selector",
           "file": "bp-group-name-suggester.php",
-          "line": 168
+          "line": 179
         },
         {
           "type": "action",
           "hookName": "bp_gns_after_suggester",
           "file": "bp-group-name-suggester.php",
-          "line": 182
+          "line": 193
         },
         {
           "type": "filter",
           "hookName": "bp_gns_available_topics",
           "file": "bp-group-name-suggester.php",
-          "line": 253
+          "line": 264
         },
         {
           "type": "filter",
           "hookName": "bp_gns_localize_data",
           "file": "bp-group-name-suggester.php",
-          "line": 287
+          "line": 298
         },
         {
           "type": "filter",
           "hookName": "bp_gns_suggestion_providers",
           "file": "bp-group-name-suggester.php",
-          "line": 303
+          "line": 314
         },
         {
           "type": "filter",
           "hookName": "bp_gns_settings",
           "file": "bp-group-name-suggester.php",
-          "line": 329
+          "line": 340
         },
         {
           "type": "filter",
           "hookName": "bp_gns_generate_suggestions",
           "file": "bp-group-name-suggester.php",
-          "line": 346
+          "line": 357
         },
         {
           "type": "filter",
           "hookName": "bp_gns_suggestions_output",
           "file": "bp-group-name-suggester.php",
-          "line": 354
+          "line": 365
         },
         {
           "type": "action",
           "hookName": "bp_gns_custom_ajax_handler",
           "file": "bp-group-name-suggester.php",
-          "line": 368
+          "line": 379
         },
         {
           "type": "filter",
           "hookName": "bp_gns_topic_data",
           "file": "bp-group-name-suggester.php",
-          "line": 409
+          "line": 420
         },
         {
           "type": "filter",
           "hookName": "bp_gns_generate_name",
           "file": "bp-group-name-suggester.php",
-          "line": 436
+          "line": 447
         },
         {
           "type": "filter",
           "hookName": "bp_gns_generate_description",
           "file": "bp-group-name-suggester.php",
-          "line": 439
+          "line": 450
         },
         {
           "type": "filter",
           "hookName": "bp_gns_suggestion_metadata",
           "file": "bp-group-name-suggester.php",
-          "line": 451
+          "line": 462
         },
         {
           "type": "filter",
           "hookName": "bp_gns_name_patterns",
           "file": "bp-group-name-suggester.php",
-          "line": 464
+          "line": 475
         },
         {
           "type": "filter",
           "hookName": "bp_gns_description_templates",
           "file": "bp-group-name-suggester.php",
-          "line": 491
+          "line": 502
         },
         {
           "type": "filter",
           "hookName": "bp_gns_topic_vocabulary",
           "file": "bp-group-name-suggester.php",
-          "line": 617
+          "line": 628
         }
       ],
       "consumed": []
@@ -298,7 +298,7 @@
           "add_filter(\n\t\t\t'bp_gns_suggestion_providers'"
         ],
         "file": "bp-group-name-suggester.php",
-        "line": 61
+        "line": 72
       }
     ]
   },
@@ -316,25 +316,25 @@
         "selector": ".bp-gns-retry",
         "event": "click",
         "file": "assets/js/script.js",
-        "line": 117
+        "line": 119
       },
       {
         "selector": ".suggestion-card",
         "event": "click",
         "file": "assets/js/script.js",
-        "line": 124
+        "line": 126
       },
       {
         "selector": ".bp-gns-retry",
         "event": "click",
         "file": "assets/js/script.js",
-        "line": 117
+        "line": 119
       },
       {
         "selector": ".suggestion-card",
         "event": "click",
         "file": "assets/js/script.js",
-        "line": 124
+        "line": 126
       }
     ],
     "localizeScripts": [
@@ -343,18 +343,18 @@
         "objectName": "bpGroupNameSuggester",
         "data": {},
         "file": "bp-group-name-suggester.php",
-        "line": 284
+        "line": 295
       }
     ],
     "issues": [
       {
         "type": "dead-handler",
         "severity": "medium",
-        "source": "bp-group-name-suggester.php:67",
+        "source": "bp-group-name-suggester.php:78",
         "target": "bp_gns_custom_suggestions",
         "details": "PHP handler \"bp_gns_custom_suggestions\" registered but never called from JS",
         "file": "bp-group-name-suggester.php",
-        "line": 67
+        "line": 78
       }
     ]
   },
@@ -362,7 +362,7 @@
     "phpFiles": 2,
     "jsFiles": 1,
     "cssFiles": 1,
-    "totalLines": 863
+    "totalLines": 876
   },
   "generated": {
     "generator": "wp-plugin-qa scanner",
@@ -380,7 +380,7 @@
       "loggedOut": false,
       "hasNonceCheck": true,
       "file": "bp-group-name-suggester.php",
-      "line": 64
+      "line": 75
     },
     {
       "action": "bp_gns_custom_suggestions",
@@ -389,7 +389,7 @@
       "loggedOut": false,
       "hasNonceCheck": true,
       "file": "bp-group-name-suggester.php",
-      "line": 67
+      "line": 78
     }
   ],
   "admin_pages": [],

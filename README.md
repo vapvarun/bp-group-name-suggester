@@ -16,7 +16,7 @@ Advanced randomizer generator names for BuddyPress groups. Generate creative, to
 
 - WordPress 5.0+
 - BuddyPress 5.0+
-- PHP 7.2+
+- PHP 8.1+
 
 ## 🔧 Installation
 

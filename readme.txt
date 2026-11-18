@@ -5,7 +5,7 @@ Tags: buddypress, group names, randomizer, generator, names, random name generat
 Requires at least: 5.0
 Tested up to: 6.5
 Stable tag: 1.0.0
-Requires PHP: 7.2
+Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -72,7 +72,7 @@ Developed by [Wbcom Designs](https://wbcomdesigns.com/), experts in BuddyPress s
 
 * WordPress 5.0 or higher
 * BuddyPress 5.0 or higher
-* PHP 7.2 or higher
+* PHP 8.1 or higher
 
 == Frequently Asked Questions ==
 
