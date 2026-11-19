@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: BuddyPress Group Name Suggester 1.0.0\n"
+"Project-Id-Version: BuddyPress Group Name Suggester 1.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/bp-group-name-suggester\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-18T19:35:44+00:00\n"
+"POT-Creation-Date: 2026-11-19T14:46:02+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: bp-group-name-suggester\n"
@@ -65,87 +65,103 @@ msgstr ""
 msgid "Suggested Names for Your Group:"
 msgstr ""
 
-#: bp-group-name-suggester.php:187
+#: bp-group-name-suggester.php:188
 msgid "Get More Suggestions"
 msgstr ""
 
-#: bp-group-name-suggester.php:207
+#: bp-group-name-suggester.php:208
 msgid "Technology"
 msgstr ""
 
-#: bp-group-name-suggester.php:211
+#: bp-group-name-suggester.php:212
 msgid "Arts & Creative"
 msgstr ""
 
-#: bp-group-name-suggester.php:215
+#: bp-group-name-suggester.php:216
 msgid "Sports & Fitness"
 msgstr ""
 
-#: bp-group-name-suggester.php:219
+#: bp-group-name-suggester.php:220
 msgid "Music"
 msgstr ""
 
-#: bp-group-name-suggester.php:223
+#: bp-group-name-suggester.php:224
 msgid "Education & Learning"
 msgstr ""
 
-#: bp-group-name-suggester.php:227
+#: bp-group-name-suggester.php:228
 msgid "Business & Professional"
 msgstr ""
 
-#: bp-group-name-suggester.php:231
+#: bp-group-name-suggester.php:232
 msgid "Health & Wellness"
 msgstr ""
 
-#: bp-group-name-suggester.php:235
+#: bp-group-name-suggester.php:236
 msgid "Gaming"
 msgstr ""
 
-#: bp-group-name-suggester.php:239
+#: bp-group-name-suggester.php:240
 msgid "Travel & Adventure"
 msgstr ""
 
-#: bp-group-name-suggester.php:243
+#: bp-group-name-suggester.php:244
 msgid "Food & Cooking"
 msgstr ""
 
-#: bp-group-name-suggester.php:247
+#: bp-group-name-suggester.php:248
 msgid "Nature & Environment"
 msgstr ""
 
-#: bp-group-name-suggester.php:251
+#: bp-group-name-suggester.php:252
 msgid "Social & Community"
 msgstr ""
 
-#: bp-group-name-suggester.php:255
+#: bp-group-name-suggester.php:256
 msgid "Hobbies & Interests"
 msgstr ""
 
-#: bp-group-name-suggester.php:259
+#: bp-group-name-suggester.php:260
 msgid "Random Mix"
 msgstr ""
 
-#: bp-group-name-suggester.php:287
+#: bp-group-name-suggester.php:288
 msgid "Generating suggestions..."
 msgstr ""
 
-#: bp-group-name-suggester.php:288
+#: bp-group-name-suggester.php:289
 msgid "Suggestions could not be loaded. Please try again."
 msgstr ""
 
-#: bp-group-name-suggester.php:289
+#: bp-group-name-suggester.php:290
 msgid "No suggestions found for this topic. Try another topic."
 msgstr ""
 
-#: bp-group-name-suggester.php:290
+#: bp-group-name-suggester.php:291
 msgid "Try again"
 msgstr ""
 
-#: bp-group-name-suggester.php:291
+#: bp-group-name-suggester.php:292
 msgid "Use This Name"
 msgstr ""
 
-#: bp-group-name-suggester.php:348
-#: bp-group-name-suggester.php:375
+#. translators: %d: number of suggestions.
+#: bp-group-name-suggester.php:294
+#, php-format
+msgid "%d name suggestions loaded."
+msgstr ""
+
+#. translators: %d: number of suggestions.
+#: bp-group-name-suggester.php:296
+#, php-format
+msgid "%d more suggestions added."
+msgstr ""
+
+#: bp-group-name-suggester.php:297
+msgid "Name and description filled in."
+msgstr ""
+
+#: bp-group-name-suggester.php:354
+#: bp-group-name-suggester.php:381
 msgid "Your session has expired. Reload the page and try again."
 msgstr ""
