@@ -112,6 +112,10 @@ class BP_Group_Name_Suggester {
 	 * Show admin notice if BuddyPress is not active
 	 */
 	public function buddypress_required_notice() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
 		?>
 		<div class="notice notice-error">
 			<p><?php esc_html_e( 'BuddyPress Group Name Suggester requires BuddyPress to be installed and activated.', 'bp-group-name-suggester' ); ?></p>
@@ -354,7 +358,13 @@ class BP_Group_Name_Suggester {
 			wp_send_json_error( array( 'message' => __( 'Your session has expired. Reload the page and try again.', 'bp-group-name-suggester' ) ), 403 );
 		}
 
-		$topic    = isset( $_POST['topic'] ) ? sanitize_text_field( wp_unslash( $_POST['topic'] ) ) : 'random';
+		$topic = isset( $_POST['topic'] ) && is_string( $_POST['topic'] ) ? sanitize_text_field( wp_unslash( $_POST['topic'] ) ) : 'random';
+
+		// Only offered topics: an arbitrary string would be echoed into every suggestion.
+		if ( ! isset( $this->get_available_topics()[ $topic ] ) ) {
+			wp_send_json_error( array( 'message' => __( 'That topic is not available. Choose another topic.', 'bp-group-name-suggester' ) ), 400 );
+		}
+
 		$count    = isset( $_POST['count'] ) ? absint( wp_unslash( $_POST['count'] ) ) : 20;
 		$count    = max( 1, min( self::MAX_SUGGESTIONS, $count ) );
 		$provider = isset( $_POST['provider'] ) ? sanitize_text_field( wp_unslash( $_POST['provider'] ) ) : 'default';

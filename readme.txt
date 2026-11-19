@@ -120,10 +120,18 @@ No, you can generate unlimited suggestions by using the "Get More Suggestions" b
 * Improve  - Each Use This Name button is tied to its suggestion, so a screen reader reads which name it applies.
 * Improve  - Choosing a name moves keyboard focus to the Group Name field.
 * Improve  - Suggestions and scrolling skip animation when the visitor prefers reduced motion.
+* Improve  - The number of suggestions per load follows the bp_gns_settings filter.
+* Improve  - Use This Name, Get More and Try again are styled by the plugin, so they look the same on BuddyPress and BuddyBoss.
+* Fix      - Use This Name and Try again show a visible keyboard focus ring under BuddyPress and Reign.
+* Fix      - A keyboard-focused topic chip no longer looks selected.
+* Fix      - Keyboard focus stays on Get More Suggestions after more names load.
+* Fix      - After a session-expired error the Try again button is hidden, since only a page reload can recover.
+* Fix      - The BuddyPress required notice shows to administrators only.
 * Fix      - Topic chips keep their outlined look and a visible selected state under the BuddyPress theme button styles.
 * Fix      - A slow response for a previous topic no longer replaces the suggestions for the topic just chosen.
 * Fix      - Keyboard focus stays on the topic list after Try again instead of being lost.
 * Fix      - The session-expired message shows when a suggestion request fails.
+* Security - Unknown topics are rejected instead of being echoed into every suggestion.
 * Dev      - Passes PHP lint on 8.1 to 8.5 with no deprecations from the plugin.
 
 = 1.0.0 =

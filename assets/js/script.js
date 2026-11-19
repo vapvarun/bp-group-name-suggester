@@ -3,6 +3,9 @@ jQuery(document).ready(function($) {
     var selectedTopic = null;
     var cardCount = 0;
     var i18n = bpGroupNameSuggester.i18n;
+    var settings = bpGroupNameSuggester.settings || {};
+    var initialCount = parseInt(settings.suggestions_per_load, 10) || 20;
+    var moreCount = parseInt(settings.more_suggestions_count, 10) || 10;
     var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     
     // Handle topic selection
@@ -54,6 +57,9 @@ jQuery(document).ready(function($) {
         var moreButton = $('#get-more-suggestions');
         var spinner = moreButton.next('.spinner');
         
+        // A disabled button drops keyboard focus, so remember it and give it back afterwards.
+        var refocusMore = !initial && document.activeElement === moreButton[0];
+        
         if (initial) {
             setStatus(i18n.loading);
         } else {
@@ -69,7 +75,7 @@ jQuery(document).ready(function($) {
             data: {
                 action: 'suggest_group_names',
                 topic: topic,
-                count: initial ? 20 : 10,
+                count: initial ? initialCount : moreCount,
                 nonce: bpGroupNameSuggester.nonce
             }
         }).done(function(response) {
@@ -128,17 +134,23 @@ jQuery(document).ready(function($) {
             
             // A 403 nonce failure carries the server's message; network errors and non-JSON bodies have none.
             var json = jqXHR && jqXHR.responseJSON;
-            showError(json && json.data && json.data.message);
+            // 403 means the page nonce expired: retrying would resend it, so the member must reload.
+            showError(json && json.data && json.data.message, jqXHR && jqXHR.status === 403);
         }).always(function() {
             moreButton.prop('disabled', false);
             spinner.hide();
+            
+            if (refocusMore) {
+                // Fall back to the active topic chip when an error hid the button.
+                (moreButton.is(':visible') ? moreButton : $('.topic-btn.active')).trigger('focus');
+            }
         });
         
-        function showError(message) {
-            setStatus(message || i18n.error, true, true);
+        function showError(message, noRetry) {
+            setStatus(message || i18n.error, true, !noRetry);
             
-            // Keep "Get More" usable when earlier suggestions are still on screen.
-            moreButton.toggle(!initial);
+            // Keep "Get More" usable when earlier suggestions are still on screen, unless it cannot succeed.
+            moreButton.toggle(!initial && !noRetry);
         }
     }
     

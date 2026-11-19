@@ -165,3 +165,7 @@ msgstr ""
 #: bp-group-name-suggester.php:381
 msgid "Your session has expired. Reload the page and try again."
 msgstr ""
+
+#: bp-group-name-suggester.php
+msgid "That topic is not available. Choose another topic."
+msgstr ""
