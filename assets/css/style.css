@@ -220,9 +220,15 @@
 }
 
 :is(.bp-group-name-suggester, #buddypress).bp-group-name-suggester button:is(.use-suggestion-btn, .bp-gns-retry, #get-more-suggestions):is(:hover, :active) {
-    background: color-mix(in srgb, var(--bp-gns-accent) 85%, var(--bp-gns-on-accent));
-    border-color: color-mix(in srgb, var(--bp-gns-accent) 85%, var(--bp-gns-on-accent));
+    /* Hover moves the fill away from the label colour, so the label keeps its contrast. */
+    background: color-mix(in srgb, var(--bp-gns-accent) 85%, #000);
+    border-color: color-mix(in srgb, var(--bp-gns-accent) 85%, #000);
     color: var(--bp-gns-on-accent);
+}
+
+:is([data-bx-mode="dark"], body.buddyx-dark-theme) :is(.bp-group-name-suggester, #buddypress).bp-group-name-suggester button:is(.use-suggestion-btn, .bp-gns-retry, #get-more-suggestions):is(:hover, :active) {
+    background: color-mix(in srgb, var(--bp-gns-accent) 85%, #fff);
+    border-color: color-mix(in srgb, var(--bp-gns-accent) 85%, #fff);
 }
 
 /* Short highlight after a suggestion fills the form; the field keeps its own colours. */
@@ -264,8 +270,9 @@
         animation: none;
     }
 
-    .bp-group-name-suggester * {
-        transition: none;
+    :is(.bp-group-name-suggester, #buddypress).bp-group-name-suggester,
+    :is(.bp-group-name-suggester, #buddypress).bp-group-name-suggester * {
+        transition: none !important;
     }
 }
 
