@@ -1,7 +1,9 @@
 jQuery(document).ready(function($) {
     
     var selectedTopic = null;
+    var cardCount = 0;
     var i18n = bpGroupNameSuggester.i18n;
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     
     // Handle topic selection
     $('.topic-btn').on('click', function() {
@@ -37,6 +39,16 @@ jQuery(document).ready(function($) {
         }
     }
     
+    // Speak a result to screen readers without showing it; an empty message clears the region.
+    function announce(message) {
+        $('.bp-gns-announce').text(message || '');
+    }
+    
+    // Fill the %d placeholder of a translated string.
+    function withCount(template, count) {
+        return template.replace('%d', count);
+    }
+    
     // Function to get suggestions
     function getSuggestions(topic, initial) {
         var moreButton = $('#get-more-suggestions');
@@ -49,6 +61,8 @@ jQuery(document).ready(function($) {
             spinner.show();
         }
         
+        announce('');
+        
         $.ajax({
             url: bpGroupNameSuggester.ajax_url,
             type: 'POST',
@@ -59,6 +73,11 @@ jQuery(document).ready(function($) {
                 nonce: bpGroupNameSuggester.nonce
             }
         }).done(function(response) {
+            // A faster click on another topic already replaced this request.
+            if (topic !== selectedTopic) {
+                return;
+            }
+            
             if (!response || !response.success) {
                 showError(response && response.data && response.data.message);
                 return;
@@ -73,6 +92,7 @@ jQuery(document).ready(function($) {
             if (!response.data || !response.data.length) {
                 if (initial) {
                     setStatus(i18n.empty);
+                    announce(i18n.empty);
                     moreButton.hide();
                 }
                 return;
@@ -82,23 +102,30 @@ jQuery(document).ready(function($) {
             
             $.each(response.data, function(index, suggestion) {
                 // Build the card from text nodes: provider output is never parsed as HTML.
+                // Each button names its card, so a screen reader hears which name it applies.
+                var titleId = 'bp-gns-name-' + (++cardCount);
                 var card = $('<div class="suggestion-card">')
                     .attr({ 'data-name': suggestion.name, 'data-description': suggestion.description })
                     .append(
-                        $('<h4>').text(suggestion.name),
+                        $('<h4>').attr('id', titleId).text(suggestion.name),
                         $('<p>').text(suggestion.description),
-                        $('<button type="button" class="use-suggestion-btn">').text(i18n.useName)
+                        $('<button type="button" class="use-suggestion-btn">').attr('aria-describedby', titleId).text(i18n.useName)
                     );
                 
                 if (initial) {
                     card.appendTo(grid);
                 } else {
-                    card.hide().appendTo(grid).fadeIn(300);
+                    card.hide().appendTo(grid).fadeIn(reduceMotion ? 0 : 300);
                 }
             });
             
+            announce(withCount(initial ? i18n.loaded : i18n.added, response.data.length));
             moreButton.show();
         }).fail(function(jqXHR) {
+            if (topic !== selectedTopic) {
+                return;
+            }
+            
             // A 403 nonce failure carries the server's message; network errors and non-JSON bodies have none.
             var json = jqXHR && jqXHR.responseJSON;
             showError(json && json.data && json.data.message);
@@ -119,6 +146,8 @@ jQuery(document).ready(function($) {
     $(document).on('click', '.bp-gns-retry', function() {
         if (selectedTopic) {
             getSuggestions(selectedTopic, !$('.suggestions-grid').children().length);
+            // The retry button is replaced by the loading message; keep keyboard focus in the widget.
+            $('.topic-btn.active').trigger('focus');
         }
     });
     
@@ -153,10 +182,13 @@ jQuery(document).ready(function($) {
             nameField.add(descField).removeClass('bp-gns-filled');
         }, 1000);
         
-        // Scroll to form
+        // Move focus to the name field so a keyboard user can edit or continue from here.
+        nameField.trigger('focus');
+        announce(i18n.applied);
+        
         $('html, body').animate({
             scrollTop: nameField.offset().top - 100
-        }, 500);
+        }, reduceMotion ? 0 : 500);
     }
     
     // Handle get more suggestions

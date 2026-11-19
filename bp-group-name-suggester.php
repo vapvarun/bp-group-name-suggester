@@ -3,7 +3,7 @@
  * Plugin Name: BuddyPress Group Name Suggester
  * Plugin URI: https://wbcomdesigns.com/
  * Description: Advanced randomizer generator names for BuddyPress groups. Generate creative, topic-based group names and descriptions instantly. This powerful name randomizer generator helps users create unique group names with our intelligent suggestion system. Perfect for community builders who need a reliable group name generator with built-in randomizer features.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Requires PHP: 8.1
  * Author: Wbcom Designs
  * Author URI: https://wbcomdesigns.com/
@@ -28,7 +28,7 @@ class BP_Group_Name_Suggester {
 	/**
 	 * Plugin version
 	 */
-	const VERSION = '1.0.0';
+	const VERSION = '1.0.1';
 
 	/**
 	 * Upper bound for suggestions returned by one request.
@@ -181,6 +181,7 @@ class BP_Group_Name_Suggester {
 					<div class="suggestions-container" style="display: none;">
 						<h4><?php esc_html_e( 'Suggested Names for Your Group:', 'bp-group-name-suggester' ); ?></h4>
 						<div class="bp-gns-status" role="status" aria-live="polite"></div>
+						<div class="bp-gns-announce screen-reader-text" role="status" aria-live="polite"></div>
 						<div class="suggestions-grid"></div>
 						<div class="suggester-actions">
 							<button type="button" id="get-more-suggestions" class="button" style="display: none;">
@@ -289,6 +290,11 @@ class BP_Group_Name_Suggester {
 					'empty'   => __( 'No suggestions found for this topic. Try another topic.', 'bp-group-name-suggester' ),
 					'retry'   => __( 'Try again', 'bp-group-name-suggester' ),
 					'useName' => __( 'Use This Name', 'bp-group-name-suggester' ),
+					/* translators: %d: number of suggestions. */
+					'loaded'  => __( '%d name suggestions loaded.', 'bp-group-name-suggester' ),
+					/* translators: %d: number of suggestions. */
+					'added'   => __( '%d more suggestions added.', 'bp-group-name-suggester' ),
+					'applied' => __( 'Name and description filled in.', 'bp-group-name-suggester' ),
 				),
 			);
 

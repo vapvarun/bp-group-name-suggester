@@ -3,8 +3,8 @@ Contributors: wbcomdesigns
 Donate link: https://wbcomdesigns.com/donate/
 Tags: buddypress, group names, randomizer, generator, names, random name generator, group name ideas, name suggester, buddypress groups, community
 Requires at least: 5.0
-Tested up to: 6.5
-Stable tag: 1.0.0
+Tested up to: 7.1
+Stable tag: 1.0.1
 Requires PHP: 8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -114,6 +114,18 @@ No, you can generate unlimited suggestions by using the "Get More Suggestions" b
 
 == Changelog ==
 
+= 1.0.1 - November 2026 =
+
+* Improve  - Screen readers hear how many suggestions loaded, how many were added and when a name is filled in.
+* Improve  - Each Use This Name button is tied to its suggestion, so a screen reader reads which name it applies.
+* Improve  - Choosing a name moves keyboard focus to the Group Name field.
+* Improve  - Suggestions and scrolling skip animation when the visitor prefers reduced motion.
+* Fix      - Topic chips keep their outlined look and a visible selected state under the BuddyPress theme button styles.
+* Fix      - A slow response for a previous topic no longer replaces the suggestions for the topic just chosen.
+* Fix      - Keyboard focus stays on the topic list after Try again instead of being lost.
+* Fix      - The session-expired message shows when a suggestion request fails.
+* Dev      - Passes PHP lint on 8.1 to 8.5 with no deprecations from the plugin.
+
 = 1.0.0 =
 * Initial release
 * 14 topic categories for targeted suggestions
@@ -125,6 +137,9 @@ No, you can generate unlimited suggestions by using the "Get More Suggestions" b
 * BuddyPress 12.0 compatibility
 
 == Upgrade Notice ==
+
+= 1.0.1 =
+Accessibility and styling fixes for the group name suggester.
 
 = 1.0.0 =
 Initial release of BuddyPress Group Name Suggester. Install to enhance your group creation experience with intelligent name suggestions.
