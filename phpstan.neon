@@ -1,0 +1,16 @@
+# WordPress stubs and rules come from szepeviktor/phpstan-wordpress, installed next to PHPStan
+# (composer global require, as the CI workflow does). %rootDir% is the phpstan/phpstan package,
+# so the path holds for any vendor dir that has both packages.
+includes:
+    - %rootDir%/../../szepeviktor/phpstan-wordpress/extension.neon
+
+parameters:
+    level: 5
+    phpVersion: 80100
+    paths:
+        - bp-group-name-suggester.php
+        - uninstall.php
+    treatPhpDocTypesAsCertain: false
+    ignoreErrors:
+        # BuddyPress and BuddyBoss have no stubs here; ignore undefined-symbol noise from them.
+        - '#Function (bp_|bb_|buddypress|groups_)[a-zA-Z0-9_]* not found#'

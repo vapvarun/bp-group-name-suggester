@@ -1,0 +1,171 @@
+# Copyright (C) 2026 Wbcom Designs
+# This file is distributed under the GPL v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: BuddyPress Group Name Suggester 1.0.1\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/bp-group-name-suggester\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-11-19T14:46:02+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: bp-group-name-suggester\n"
+
+#. Plugin Name of the plugin
+#: bp-group-name-suggester.php
+msgid "BuddyPress Group Name Suggester"
+msgstr ""
+
+#. Plugin URI of the plugin
+#. Author URI of the plugin
+#: bp-group-name-suggester.php
+msgid "https://wbcomdesigns.com/"
+msgstr ""
+
+#. Description of the plugin
+#: bp-group-name-suggester.php
+msgid "Advanced randomizer generator names for BuddyPress groups. Generate creative, topic-based group names and descriptions instantly. This powerful name randomizer generator helps users create unique group names with our intelligent suggestion system. Perfect for community builders who need a reliable group name generator with built-in randomizer features."
+msgstr ""
+
+#. Author of the plugin
+#: bp-group-name-suggester.php
+msgid "Wbcom Designs"
+msgstr ""
+
+#: bp-group-name-suggester.php:103
+msgid "Default Generator"
+msgstr ""
+
+#: bp-group-name-suggester.php:117
+msgid "BuddyPress Group Name Suggester requires BuddyPress to be installed and activated."
+msgstr ""
+
+#. translators: %s: link to the BuddyPress Components settings screen.
+#: bp-group-name-suggester.php:137
+#, php-format
+msgid "BuddyPress Group Name Suggester needs the BuddyPress Groups component. Turn it on in %s."
+msgstr ""
+
+#: bp-group-name-suggester.php:138
+msgid "Settings > BuddyPress > Components"
+msgstr ""
+
+#: bp-group-name-suggester.php:165
+msgid "Need Help Naming Your Group?"
+msgstr ""
+
+#: bp-group-name-suggester.php:168
+msgid "Select your group topic:"
+msgstr ""
+
+#: bp-group-name-suggester.php:182
+msgid "Suggested Names for Your Group:"
+msgstr ""
+
+#: bp-group-name-suggester.php:188
+msgid "Get More Suggestions"
+msgstr ""
+
+#: bp-group-name-suggester.php:208
+msgid "Technology"
+msgstr ""
+
+#: bp-group-name-suggester.php:212
+msgid "Arts & Creative"
+msgstr ""
+
+#: bp-group-name-suggester.php:216
+msgid "Sports & Fitness"
+msgstr ""
+
+#: bp-group-name-suggester.php:220
+msgid "Music"
+msgstr ""
+
+#: bp-group-name-suggester.php:224
+msgid "Education & Learning"
+msgstr ""
+
+#: bp-group-name-suggester.php:228
+msgid "Business & Professional"
+msgstr ""
+
+#: bp-group-name-suggester.php:232
+msgid "Health & Wellness"
+msgstr ""
+
+#: bp-group-name-suggester.php:236
+msgid "Gaming"
+msgstr ""
+
+#: bp-group-name-suggester.php:240
+msgid "Travel & Adventure"
+msgstr ""
+
+#: bp-group-name-suggester.php:244
+msgid "Food & Cooking"
+msgstr ""
+
+#: bp-group-name-suggester.php:248
+msgid "Nature & Environment"
+msgstr ""
+
+#: bp-group-name-suggester.php:252
+msgid "Social & Community"
+msgstr ""
+
+#: bp-group-name-suggester.php:256
+msgid "Hobbies & Interests"
+msgstr ""
+
+#: bp-group-name-suggester.php:260
+msgid "Random Mix"
+msgstr ""
+
+#: bp-group-name-suggester.php:288
+msgid "Generating suggestions..."
+msgstr ""
+
+#: bp-group-name-suggester.php:289
+msgid "Suggestions could not be loaded. Please try again."
+msgstr ""
+
+#: bp-group-name-suggester.php:290
+msgid "No suggestions found for this topic. Try another topic."
+msgstr ""
+
+#: bp-group-name-suggester.php:291
+msgid "Try again"
+msgstr ""
+
+#: bp-group-name-suggester.php:292
+msgid "Use This Name"
+msgstr ""
+
+#. translators: %d: number of suggestions.
+#: bp-group-name-suggester.php:294
+#, php-format
+msgid "%d name suggestions loaded."
+msgstr ""
+
+#. translators: %d: number of suggestions.
+#: bp-group-name-suggester.php:296
+#, php-format
+msgid "%d more suggestions added."
+msgstr ""
+
+#: bp-group-name-suggester.php:297
+msgid "Name and description filled in."
+msgstr ""
+
+#: bp-group-name-suggester.php:354
+#: bp-group-name-suggester.php:381
+msgid "Your session has expired. Reload the page and try again."
+msgstr ""
+
+#: bp-group-name-suggester.php
+msgid "That topic is not available. Choose another topic."
+msgstr ""

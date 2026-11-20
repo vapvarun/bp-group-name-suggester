@@ -1,0 +1,695 @@
+{
+  "header": {
+    "name": "BuddyPress Group Name Suggester",
+    "slug": "bp-group-name-suggester",
+    "version": "1.0.0",
+    "textDomain": "bp-group-name-suggester",
+    "domainPath": "/languages",
+    "requiresWP": "",
+    "requiresPHP": "8.1",
+    "description": "Advanced randomizer generator names for BuddyPress groups. Generate creative, topic-based group names and descriptions instantly. This powerful name randomizer generator helps users create unique group names with our intelligent suggestion system. Perfect for community builders who need a reliable group name generator with built-in randomizer features.",
+    "author": "Wbcom Designs",
+    "pluginURI": "https://wbcomdesigns.com/",
+    "network": false
+  },
+  "pluginPath": "bp-group-name-suggester",
+  "cssPrefix": "bp",
+  "hasEnqueueCalls": true,
+  "hasIntegrationConditionals": true,
+  "features": {
+    "cpts": [],
+    "taxonomies": [],
+    "shortcodes": [],
+    "blocks": [],
+    "restRoutes": [],
+    "ajaxHandlers": [
+      {
+        "action": "suggest_group_names",
+        "callback": "ajax_suggest_group_names",
+        "loggedIn": true,
+        "loggedOut": false,
+        "hasNonceCheck": true,
+        "file": "bp-group-name-suggester.php",
+        "line": 75
+      },
+      {
+        "action": "bp_gns_custom_suggestions",
+        "callback": "ajax_custom_suggestions",
+        "loggedIn": true,
+        "loggedOut": false,
+        "hasNonceCheck": true,
+        "file": "bp-group-name-suggester.php",
+        "line": 78
+      }
+    ],
+    "adminPages": [],
+    "settings": [],
+    "optionsWiring": [],
+    "hookListeners": [
+      {
+        "hook": "bp_gns_init",
+        "listeners": []
+      },
+      {
+        "hook": "bp_gns_template_path",
+        "listeners": []
+      },
+      {
+        "hook": "bp_gns_before_suggester",
+        "listeners": []
+      },
+      {
+        "hook": "bp_gns_heading_text",
+        "listeners": []
+      },
+      {
+        "hook": "bp_gns_after_topic_selector",
+        "listeners": []
+      },
+      {
+        "hook": "bp_gns_after_suggester",
+        "listeners": []
+      },
+      {
+        "hook": "bp_gns_available_topics",
+        "listeners": [
+          {
+            "callback": "function ( $topics",
+            "file": "bp-group-name-suggester.php",
+            "line": 648
+          }
+        ]
+      },
+      {
+        "hook": "bp_gns_localize_data",
+        "listeners": []
+      },
+      {
+        "hook": "bp_gns_suggestion_providers",
+        "listeners": [
+          {
+            "callback": "array( $this",
+            "file": "bp-group-name-suggester.php",
+            "line": 92
+          },
+          {
+            "callback": "function ( $providers",
+            "file": "bp-group-name-suggester.php",
+            "line": 678
+          }
+        ]
+      },
+      {
+        "hook": "bp_gns_settings",
+        "listeners": []
+      },
+      {
+        "hook": "bp_gns_generate_suggestions",
+        "listeners": []
+      },
+      {
+        "hook": "bp_gns_suggestions_output",
+        "listeners": []
+      },
+      {
+        "hook": "bp_gns_custom_ajax_handler",
+        "listeners": []
+      },
+      {
+        "hook": "bp_gns_topic_data",
+        "listeners": []
+      },
+      {
+        "hook": "bp_gns_generate_name",
+        "listeners": []
+      },
+      {
+        "hook": "bp_gns_generate_description",
+        "listeners": []
+      },
+      {
+        "hook": "bp_gns_suggestion_metadata",
+        "listeners": []
+      },
+      {
+        "hook": "bp_gns_name_patterns",
+        "listeners": []
+      },
+      {
+        "hook": "bp_gns_description_templates",
+        "listeners": []
+      },
+      {
+        "hook": "bp_gns_topic_vocabulary",
+        "listeners": [
+          {
+            "callback": "function ( $vocab",
+            "file": "bp-group-name-suggester.php",
+            "line": 659
+          }
+        ]
+      }
+    ],
+    "featureGroups": [],
+    "frontendJs": [],
+    "widgets": [],
+    "metaBoxes": [],
+    "cronJobs": [],
+    "cliCommands": [],
+    "dbTables": [],
+    "templates": [],
+    "hooks": {
+      "provided": [
+        {
+          "type": "action",
+          "hookName": "bp_gns_init",
+          "file": "bp-group-name-suggester.php",
+          "line": 89
+        },
+        {
+          "type": "filter",
+          "hookName": "bp_gns_template_path",
+          "file": "bp-group-name-suggester.php",
+          "line": 155
+        },
+        {
+          "type": "action",
+          "hookName": "bp_gns_before_suggester",
+          "file": "bp-group-name-suggester.php",
+          "line": 163
+        },
+        {
+          "type": "filter",
+          "hookName": "bp_gns_heading_text",
+          "file": "bp-group-name-suggester.php",
+          "line": 165
+        },
+        {
+          "type": "action",
+          "hookName": "bp_gns_after_topic_selector",
+          "file": "bp-group-name-suggester.php",
+          "line": 179
+        },
+        {
+          "type": "action",
+          "hookName": "bp_gns_after_suggester",
+          "file": "bp-group-name-suggester.php",
+          "line": 193
+        },
+        {
+          "type": "filter",
+          "hookName": "bp_gns_available_topics",
+          "file": "bp-group-name-suggester.php",
+          "line": 264
+        },
+        {
+          "type": "filter",
+          "hookName": "bp_gns_localize_data",
+          "file": "bp-group-name-suggester.php",
+          "line": 298
+        },
+        {
+          "type": "filter",
+          "hookName": "bp_gns_suggestion_providers",
+          "file": "bp-group-name-suggester.php",
+          "line": 314
+        },
+        {
+          "type": "filter",
+          "hookName": "bp_gns_settings",
+          "file": "bp-group-name-suggester.php",
+          "line": 340
+        },
+        {
+          "type": "filter",
+          "hookName": "bp_gns_generate_suggestions",
+          "file": "bp-group-name-suggester.php",
+          "line": 357
+        },
+        {
+          "type": "filter",
+          "hookName": "bp_gns_suggestions_output",
+          "file": "bp-group-name-suggester.php",
+          "line": 365
+        },
+        {
+          "type": "action",
+          "hookName": "bp_gns_custom_ajax_handler",
+          "file": "bp-group-name-suggester.php",
+          "line": 379
+        },
+        {
+          "type": "filter",
+          "hookName": "bp_gns_topic_data",
+          "file": "bp-group-name-suggester.php",
+          "line": 420
+        },
+        {
+          "type": "filter",
+          "hookName": "bp_gns_generate_name",
+          "file": "bp-group-name-suggester.php",
+          "line": 447
+        },
+        {
+          "type": "filter",
+          "hookName": "bp_gns_generate_description",
+          "file": "bp-group-name-suggester.php",
+          "line": 450
+        },
+        {
+          "type": "filter",
+          "hookName": "bp_gns_suggestion_metadata",
+          "file": "bp-group-name-suggester.php",
+          "line": 462
+        },
+        {
+          "type": "filter",
+          "hookName": "bp_gns_name_patterns",
+          "file": "bp-group-name-suggester.php",
+          "line": 475
+        },
+        {
+          "type": "filter",
+          "hookName": "bp_gns_description_templates",
+          "file": "bp-group-name-suggester.php",
+          "line": 502
+        },
+        {
+          "type": "filter",
+          "hookName": "bp_gns_topic_vocabulary",
+          "file": "bp-group-name-suggester.php",
+          "line": 628
+        }
+      ],
+      "consumed": []
+    },
+    "activationHooks": [],
+    "customRoles": [],
+    "imageSizes": [],
+    "blockPatterns": [],
+    "integrations": [
+      {
+        "type": "buddypress",
+        "hooks": [
+          "add_action( 'bp_before_group_details_creation_step'",
+          "add_filter( 'bp_gns_suggestion_providers'",
+          "add_filter(\n\t\t\t'bp_gns_available_topics'",
+          "add_filter(\n\t\t\t'bp_gns_topic_vocabulary'",
+          "add_filter(\n\t\t\t'bp_gns_suggestion_providers'"
+        ],
+        "file": "bp-group-name-suggester.php",
+        "line": 72
+      }
+    ]
+  },
+  "wiring": {
+    "jsAjaxCalls": [
+      {
+        "action": "suggest_group_names",
+        "nonceKey": "bpGroupNameSuggester.nonce",
+        "file": "assets/js/script.js",
+        "line": 56
+      }
+    ],
+    "jsEventHandlers": [
+      {
+        "selector": ".bp-gns-retry",
+        "event": "click",
+        "file": "assets/js/script.js",
+        "line": 119
+      },
+      {
+        "selector": ".suggestion-card",
+        "event": "click",
+        "file": "assets/js/script.js",
+        "line": 126
+      },
+      {
+        "selector": ".bp-gns-retry",
+        "event": "click",
+        "file": "assets/js/script.js",
+        "line": 119
+      },
+      {
+        "selector": ".suggestion-card",
+        "event": "click",
+        "file": "assets/js/script.js",
+        "line": 126
+      }
+    ],
+    "localizeScripts": [
+      {
+        "handle": "bp-group-name-suggester",
+        "objectName": "bpGroupNameSuggester",
+        "data": {},
+        "file": "bp-group-name-suggester.php",
+        "line": 295
+      }
+    ],
+    "issues": [
+      {
+        "type": "dead-handler",
+        "severity": "medium",
+        "source": "bp-group-name-suggester.php:78",
+        "target": "bp_gns_custom_suggestions",
+        "details": "PHP handler \"bp_gns_custom_suggestions\" registered but never called from JS",
+        "file": "bp-group-name-suggester.php",
+        "line": 78
+      }
+    ]
+  },
+  "stats": {
+    "phpFiles": 2,
+    "jsFiles": 1,
+    "cssFiles": 1,
+    "totalLines": 876
+  },
+  "generated": {
+    "generator": "wp-plugin-qa scanner",
+    "schema": "v3-functional"
+  },
+  "rest": {
+    "namespace": "",
+    "endpoints": []
+  },
+  "ajax": [
+    {
+      "action": "suggest_group_names",
+      "callback": "ajax_suggest_group_names",
+      "loggedIn": true,
+      "loggedOut": false,
+      "hasNonceCheck": true,
+      "file": "bp-group-name-suggester.php",
+      "line": 75
+    },
+    {
+      "action": "bp_gns_custom_suggestions",
+      "callback": "ajax_custom_suggestions",
+      "loggedIn": true,
+      "loggedOut": false,
+      "hasNonceCheck": true,
+      "file": "bp-group-name-suggester.php",
+      "line": 78
+    }
+  ],
+  "admin_pages": [],
+  "tables": [],
+  "hooks_fired": [
+    {
+      "hook": "bp_gns_init",
+      "type": "action",
+      "file": "bp-group-name-suggester.php:78"
+    },
+    {
+      "hook": "bp_gns_template_path",
+      "type": "filter",
+      "file": "bp-group-name-suggester.php:144"
+    },
+    {
+      "hook": "bp_gns_before_suggester",
+      "type": "action",
+      "file": "bp-group-name-suggester.php:152"
+    },
+    {
+      "hook": "bp_gns_heading_text",
+      "type": "filter",
+      "file": "bp-group-name-suggester.php:154"
+    },
+    {
+      "hook": "bp_gns_after_topic_selector",
+      "type": "action",
+      "file": "bp-group-name-suggester.php:168"
+    },
+    {
+      "hook": "bp_gns_after_suggester",
+      "type": "action",
+      "file": "bp-group-name-suggester.php:182"
+    },
+    {
+      "hook": "bp_gns_available_topics",
+      "type": "filter",
+      "file": "bp-group-name-suggester.php:253"
+    },
+    {
+      "hook": "bp_gns_localize_data",
+      "type": "filter",
+      "file": "bp-group-name-suggester.php:287"
+    },
+    {
+      "hook": "bp_gns_suggestion_providers",
+      "type": "filter",
+      "file": "bp-group-name-suggester.php:303"
+    },
+    {
+      "hook": "bp_gns_settings",
+      "type": "filter",
+      "file": "bp-group-name-suggester.php:329"
+    },
+    {
+      "hook": "bp_gns_generate_suggestions",
+      "type": "filter",
+      "file": "bp-group-name-suggester.php:346"
+    },
+    {
+      "hook": "bp_gns_suggestions_output",
+      "type": "filter",
+      "file": "bp-group-name-suggester.php:354"
+    },
+    {
+      "hook": "bp_gns_custom_ajax_handler",
+      "type": "action",
+      "file": "bp-group-name-suggester.php:368"
+    },
+    {
+      "hook": "bp_gns_topic_data",
+      "type": "filter",
+      "file": "bp-group-name-suggester.php:409"
+    },
+    {
+      "hook": "bp_gns_generate_name",
+      "type": "filter",
+      "file": "bp-group-name-suggester.php:436"
+    },
+    {
+      "hook": "bp_gns_generate_description",
+      "type": "filter",
+      "file": "bp-group-name-suggester.php:439"
+    },
+    {
+      "hook": "bp_gns_suggestion_metadata",
+      "type": "filter",
+      "file": "bp-group-name-suggester.php:451"
+    },
+    {
+      "hook": "bp_gns_name_patterns",
+      "type": "filter",
+      "file": "bp-group-name-suggester.php:464"
+    },
+    {
+      "hook": "bp_gns_description_templates",
+      "type": "filter",
+      "file": "bp-group-name-suggester.php:491"
+    },
+    {
+      "hook": "bp_gns_topic_vocabulary",
+      "type": "filter",
+      "file": "bp-group-name-suggester.php:617"
+    }
+  ],
+  "cron": [],
+  "blocks": [],
+  "shortcodes": [],
+  "frontend_assets": {
+    "js": [
+      "assets/js/script.js"
+    ],
+    "css": [
+      "assets/css/style.css"
+    ]
+  },
+  "template_contract": {
+    "mode": "none",
+    "checked": 0,
+    "pass": 0,
+    "fail": 0,
+    "skipped": 1,
+    "findings": []
+  },
+  "template_zero_logic": {
+    "checked_files": 0,
+    "fail": 0,
+    "findings": []
+  },
+  "template_components": {
+    "checked_files": 0,
+    "fail": 0,
+    "findings": []
+  },
+  "readiness": {
+    "score": 86,
+    "requiredMet": true,
+    "barVerdict": "meets-bar",
+    "counts": {
+      "pass": 12,
+      "missing": 2,
+      "fail": 0,
+      "na": 2
+    },
+    "groups": {
+      "Standards": {
+        "pass": 3,
+        "total": 3
+      },
+      "CI & Quality": {
+        "pass": 3,
+        "total": 3
+      },
+      "Architecture": {
+        "pass": 0,
+        "total": 1
+      },
+      "Contracts": {
+        "pass": 1,
+        "total": 1
+      },
+      "QA system": {
+        "pass": 4,
+        "total": 5
+      },
+      "Docs": {
+        "pass": 1,
+        "total": 1
+      }
+    },
+    "items": [
+      {
+        "id": "uninstall",
+        "group": "Standards",
+        "label": "uninstall.php / uninstall hook",
+        "required": true,
+        "status": "pass",
+        "detail": "cleanup on delete present"
+      },
+      {
+        "id": "readme",
+        "group": "Standards",
+        "label": "readme.txt with changelog",
+        "required": true,
+        "status": "pass",
+        "detail": "changelog present"
+      },
+      {
+        "id": "i18n",
+        "group": "Standards",
+        "label": "i18n: .pot file",
+        "required": true,
+        "status": "pass",
+        "detail": "translation template present"
+      },
+      {
+        "id": "wpcs",
+        "group": "CI & Quality",
+        "label": "WPCS config (phpcs.xml)",
+        "required": true,
+        "status": "pass",
+        "detail": "phpcs config present"
+      },
+      {
+        "id": "phpstan",
+        "group": "CI & Quality",
+        "label": "PHPStan config",
+        "required": true,
+        "status": "pass",
+        "detail": "phpstan config present"
+      },
+      {
+        "id": "ci",
+        "group": "CI & Quality",
+        "label": "CI pipeline (workflow or local-ci)",
+        "required": true,
+        "status": "pass",
+        "detail": "CI gate present"
+      },
+      {
+        "id": "rest",
+        "group": "Architecture",
+        "label": "REST API (app/integration surface)",
+        "required": false,
+        "status": "missing",
+        "detail": "no REST routes"
+      },
+      {
+        "id": "caps",
+        "group": "Architecture",
+        "label": "Custom capabilities registered",
+        "required": false,
+        "status": "n/a",
+        "detail": "no custom roles"
+      },
+      {
+        "id": "template-contract",
+        "group": "Contracts",
+        "label": "Template contract (TC2) clean",
+        "required": true,
+        "status": "n/a",
+        "detail": "no detectable template loader"
+      },
+      {
+        "id": "template-zero-logic",
+        "group": "Contracts",
+        "label": "Templates are logic-free (TC1)",
+        "required": false,
+        "status": "pass",
+        "detail": "no data fetching in templates"
+      },
+      {
+        "id": "qa-runbook",
+        "group": "QA system",
+        "label": "docs/qa smoke runbook",
+        "required": true,
+        "status": "pass",
+        "detail": "runbook present"
+      },
+      {
+        "id": "qa-config",
+        "group": "QA system",
+        "label": "docs/qa/qa-config.json",
+        "required": true,
+        "status": "pass",
+        "detail": "qa-config present"
+      },
+      {
+        "id": "manifest",
+        "group": "QA system",
+        "label": "audit/manifest.json",
+        "required": true,
+        "status": "pass",
+        "detail": "manifest present"
+      },
+      {
+        "id": "contract-baseline",
+        "group": "QA system",
+        "label": "contract-audit baseline",
+        "required": false,
+        "status": "pass",
+        "detail": "baseline present"
+      },
+      {
+        "id": "journeys",
+        "group": "QA system",
+        "label": "audit/journeys catalogue",
+        "required": false,
+        "status": "missing",
+        "detail": "no audit/journeys"
+      },
+      {
+        "id": "docs",
+        "group": "Docs",
+        "label": "docs/ tree",
+        "required": false,
+        "status": "pass",
+        "detail": "docs/ present"
+      }
+    ]
+  }
+}

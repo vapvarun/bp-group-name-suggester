@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<ruleset name="BuddyPress Group Name Suggester">
+	<description>Coding standards for Wbcom Designs - BuddyPress Group Name Suggester.</description>
+
+	<file>.</file>
+
+	<arg name="extensions" value="php"/>
+	<arg name="colors"/>
+	<arg value="sp"/>
+	<arg name="parallel" value="8"/>
+
+	<!-- House rule: errors block the build, warnings are advisory. -->
+	<config name="ignore_warnings_on_exit" value="1"/>
+
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/languages/*</exclude-pattern>
+	<exclude-pattern>*/dist/*</exclude-pattern>
+
+	<rule ref="WordPress"/>
+
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="bp-group-name-suggester"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- Shipped public API prefixes; hooks, functions and classes keep these names (renaming breaks add-ons). -->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="bp_gns"/>
+				<element value="BP_Group_Name_Suggester"/>
+				<element value="bp_group_name_suggester"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- Baseline: single-file plugin. The main file name is fixed by the slug and holds the class plus two API helpers; splitting it is a structural change. -->
+	<rule ref="WordPress.Files.FileName.InvalidClassFileName">
+		<exclude-pattern>bp-group-name-suggester\.php$</exclude-pattern>
+	</rule>
+	<rule ref="Universal.Files.SeparateFunctionsFromOO.Mixed">
+		<exclude-pattern>bp-group-name-suggester\.php$</exclude-pattern>
+	</rule>
+
+	<!-- PHP 8.1+ portfolio floor. -->
+	<config name="testVersion" value="8.1-"/>
+	<rule ref="PHPCompatibilityWP"/>
+</ruleset>

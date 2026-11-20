@@ -1,0 +1,10 @@
+{
+    "generated": "2026-11-18T19:31:33+00:00",
+    "suppressions": [
+        {
+            "id": "ajax-handler-unreferenced:bp_gns_custom_suggestions",
+            "reason": "Extension point: add-ons post this action and answer it on bp_gns_custom_ajax_handler; the plugin JS never calls it by design.",
+            "severity": "warning"
+        }
+    ]
+}
