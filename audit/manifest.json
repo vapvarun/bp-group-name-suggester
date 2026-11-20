@@ -27,19 +27,11 @@
         "action": "suggest_group_names",
         "callback": "ajax_suggest_group_names",
         "loggedIn": true,
-        "loggedOut": false,
+        "loggedOut": true,
         "hasNonceCheck": true,
         "file": "bp-group-name-suggester.php",
-        "line": 75
-      },
-      {
-        "action": "bp_gns_custom_suggestions",
-        "callback": "ajax_custom_suggestions",
-        "loggedIn": true,
-        "loggedOut": false,
-        "hasNonceCheck": true,
-        "file": "bp-group-name-suggester.php",
-        "line": 78
+        "line": 79,
+        "loggedOutCallback": "ajax_session_expired"
       }
     ],
     "adminPages": [],
@@ -85,21 +77,6 @@
         "listeners": []
       },
       {
-        "hook": "bp_gns_suggestion_providers",
-        "listeners": [
-          {
-            "callback": "array( $this",
-            "file": "bp-group-name-suggester.php",
-            "line": 92
-          },
-          {
-            "callback": "function ( $providers",
-            "file": "bp-group-name-suggester.php",
-            "line": 678
-          }
-        ]
-      },
-      {
         "hook": "bp_gns_settings",
         "listeners": []
       },
@@ -109,10 +86,6 @@
       },
       {
         "hook": "bp_gns_suggestions_output",
-        "listeners": []
-      },
-      {
-        "hook": "bp_gns_custom_ajax_handler",
         "listeners": []
       },
       {
@@ -210,12 +183,6 @@
         },
         {
           "type": "filter",
-          "hookName": "bp_gns_suggestion_providers",
-          "file": "bp-group-name-suggester.php",
-          "line": 314
-        },
-        {
-          "type": "filter",
           "hookName": "bp_gns_settings",
           "file": "bp-group-name-suggester.php",
           "line": 340
@@ -231,12 +198,6 @@
           "hookName": "bp_gns_suggestions_output",
           "file": "bp-group-name-suggester.php",
           "line": 365
-        },
-        {
-          "type": "action",
-          "hookName": "bp_gns_custom_ajax_handler",
-          "file": "bp-group-name-suggester.php",
-          "line": 379
         },
         {
           "type": "filter",
@@ -292,10 +253,8 @@
         "type": "buddypress",
         "hooks": [
           "add_action( 'bp_before_group_details_creation_step'",
-          "add_filter( 'bp_gns_suggestion_providers'",
           "add_filter(\n\t\t\t'bp_gns_available_topics'",
-          "add_filter(\n\t\t\t'bp_gns_topic_vocabulary'",
-          "add_filter(\n\t\t\t'bp_gns_suggestion_providers'"
+          "add_filter(\n\t\t\t'bp_gns_topic_vocabulary'"
         ],
         "file": "bp-group-name-suggester.php",
         "line": 72
@@ -346,17 +305,7 @@
         "line": 295
       }
     ],
-    "issues": [
-      {
-        "type": "dead-handler",
-        "severity": "medium",
-        "source": "bp-group-name-suggester.php:78",
-        "target": "bp_gns_custom_suggestions",
-        "details": "PHP handler \"bp_gns_custom_suggestions\" registered but never called from JS",
-        "file": "bp-group-name-suggester.php",
-        "line": 78
-      }
-    ]
+    "issues": []
   },
   "stats": {
     "phpFiles": 2,
@@ -377,19 +326,11 @@
       "action": "suggest_group_names",
       "callback": "ajax_suggest_group_names",
       "loggedIn": true,
-      "loggedOut": false,
+      "loggedOut": true,
       "hasNonceCheck": true,
       "file": "bp-group-name-suggester.php",
-      "line": 75
-    },
-    {
-      "action": "bp_gns_custom_suggestions",
-      "callback": "ajax_custom_suggestions",
-      "loggedIn": true,
-      "loggedOut": false,
-      "hasNonceCheck": true,
-      "file": "bp-group-name-suggester.php",
-      "line": 78
+      "line": 79,
+      "loggedOutCallback": "ajax_session_expired"
     }
   ],
   "admin_pages": [],
@@ -436,11 +377,6 @@
       "file": "bp-group-name-suggester.php:287"
     },
     {
-      "hook": "bp_gns_suggestion_providers",
-      "type": "filter",
-      "file": "bp-group-name-suggester.php:303"
-    },
-    {
       "hook": "bp_gns_settings",
       "type": "filter",
       "file": "bp-group-name-suggester.php:329"
@@ -454,11 +390,6 @@
       "hook": "bp_gns_suggestions_output",
       "type": "filter",
       "file": "bp-group-name-suggester.php:354"
-    },
-    {
-      "hook": "bp_gns_custom_ajax_handler",
-      "type": "action",
-      "file": "bp-group-name-suggester.php:368"
     },
     {
       "hook": "bp_gns_topic_data",

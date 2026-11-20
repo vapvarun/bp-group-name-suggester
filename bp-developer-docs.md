@@ -29,72 +29,35 @@ function my_custom_vocabulary($vocab) {
 add_filter('bp_gns_topic_vocabulary', 'my_custom_vocabulary');
 ```
 
-### 2. Integrating AI Suggestions
+### 2. Replacing the Generator
+
+Return an array of suggestions from `bp_gns_generate_suggestions` to replace the built-in generator (an AI service, a list of your own). Return `null` to keep the default. The fourth argument lists the names the member already sees, so "Get More" never repeats one. Returning fewer than `$count` suggestions tells the panel the topic has run out, and it hides "Get More".
 
 ```php
-// Register an AI provider (e.g., OpenAI)
-function register_openai_provider() {
-    bp_gns_register_ai_provider('openai', 'OpenAI GPT', 'my_openai_suggestion_handler');
-}
-add_action('bp_gns_init', 'register_openai_provider');
-
-// AI suggestion handler
-function my_openai_suggestion_handler($topic, $count) {
-    // Your OpenAI API integration
-    $api_key = get_option('my_openai_api_key');
-    
-    $suggestions = array();
-    
-    // Make API call to OpenAI
-    $response = wp_remote_post('https://api.openai.com/v1/completions', array(
-        'headers' => array(
-            'Authorization' => 'Bearer ' . $api_key,
-            'Content-Type' => 'application/json'
-        ),
-        'body' => json_encode(array(
-            'model' => 'gpt-3.5-turbo',
-            'prompt' => "Generate {$count} creative group names for a {$topic} community...",
-            'max_tokens' => 150
-        ))
-    ));
-    
-    // Process response and return suggestions
-    return $suggestions;
-}
-
-// Hook into suggestion generation
-add_filter('bp_gns_generate_suggestions', function($suggestions, $topic, $count, $provider) {
-    if ($provider === 'openai') {
-        return my_openai_suggestion_handler($topic, $count);
+add_filter('bp_gns_generate_suggestions', function($suggestions, $topic, $count, $exclude) {
+    if ($topic !== 'crypto') {
+        return $suggestions; // null: use the default generator.
     }
-    return $suggestions;
+
+    $names = array_diff(my_crypto_group_names(), $exclude);
+
+    return array_map(function($name) use ($topic) {
+        return array(
+            'name'        => $name,
+            'description' => sprintf('A community for %s fans.', $name),
+            'topic'       => $topic,
+            'metadata'    => array(),
+        );
+    }, array_slice(array_values($names), 0, $count));
 }, 10, 4);
 ```
 
-### 3. Custom AJAX Endpoints
-
-```php
-// Add custom AJAX handler
-add_action('bp_gns_custom_ajax_handler', function($data) {
-    if (isset($data['action_type']) && $data['action_type'] === 'ai_suggestions') {
-        // Handle AI-specific requests
-        $topic = sanitize_text_field($data['topic']);
-        $prompt = sanitize_text_field($data['prompt']);
-        
-        // Your custom logic here
-        $suggestions = generate_ai_suggestions($topic, $prompt);
-        
-        wp_send_json_success($suggestions);
-    }
-});
-```
-
-### 4. Modifying Suggestion Output
+### 3. Modifying Suggestion Output
 
 ```php
 // Add metadata to suggestions
 add_filter('bp_gns_suggestion_metadata', function($metadata, $topic) {
-    $metadata['source'] = 'ai_generated';
+    $metadata['source'] = 'my_plugin';
     $metadata['confidence'] = rand(85, 99) / 100;
     $metadata['timestamp'] = current_time('timestamp');
     return $metadata;
@@ -113,7 +76,7 @@ add_filter('bp_gns_suggestions_output', function($suggestions, $topic) {
 }, 10, 2);
 ```
 
-### 5. Custom Name and Description Patterns
+### 4. Custom Name and Description Patterns
 
 ```php
 // Add custom name patterns
@@ -135,31 +98,26 @@ add_filter('bp_gns_description_templates', function($templates, $keyword, $activ
 }, 10, 4);
 ```
 
-### 6. Settings and Configuration
+### 5. Settings and Configuration
 
 ```php
 // Modify plugin settings
 add_filter('bp_gns_settings', function($settings) {
-    $settings['enable_ai'] = true;
-    $settings['ai_provider'] = 'openai';
-    $settings['suggestions_per_load'] = 30;
-    $settings['cache_duration'] = 7200; // 2 hours
+    $settings['suggestions_per_load']   = 30; // first load
+    $settings['more_suggestions_count'] = 15; // each "Get More"
     
     return $settings;
 });
 
 // Add custom settings to localized data
 add_filter('bp_gns_localize_data', function($data) {
-    $data['custom_endpoints'] = array(
-        'ai_suggest' => admin_url('admin-ajax.php?action=bp_gns_custom_suggestions'),
-        'trending' => admin_url('admin-ajax.php?action=bp_gns_trending_names')
-    );
+    $data['i18n']['exhausted'] = __('No more names for this topic.', 'my-plugin');
     
     return $data;
 });
 ```
 
-### 7. Template Customization
+### 6. Template Customization
 
 ```php
 // Override the suggester template
@@ -176,7 +134,7 @@ add_filter('bp_gns_template_path', function($template) {
 
 // Add content before/after suggester
 add_action('bp_gns_before_suggester', function() {
-    echo '<div class="ai-powered-notice">Powered by AI</div>';
+    echo '<div class="my-suggester-notice">Pick a name you like.</div>';
 });
 
 add_action('bp_gns_after_suggester', function() {
@@ -184,7 +142,7 @@ add_action('bp_gns_after_suggester', function() {
 });
 ```
 
-### 8. JavaScript Integration
+### 7. JavaScript Integration
 
 ```javascript
 // In your custom JavaScript file
@@ -202,107 +160,7 @@ jQuery(document).ready(function($) {
             });
         }
     });
-    
-    // Add AI button
-    if (bpGroupNameSuggester.settings.enable_ai) {
-        $('.topic-buttons').after(
-            '<button class="ai-suggest-btn">Get AI Suggestions</button>'
-        );
-    }
 });
-```
-
-## Complete Example: AI Integration
-
-```php
-/**
- * Plugin Name: BuddyPress AI Name Suggestions
- * Description: Adds AI-powered suggestions to BuddyPress Group Name Suggester
- */
-
-class BP_AI_Suggestions {
-    
-    public function __construct() {
-        add_action('bp_gns_init', array($this, 'init'));
-    }
-    
-    public function init() {
-        // Register AI provider
-        bp_gns_register_ai_provider('chatgpt', 'ChatGPT AI', array($this, 'generate_ai_suggestions'));
-        
-        // Add AI topic
-        add_filter('bp_gns_available_topics', array($this, 'add_ai_topic'));
-        
-        // Hook into generation
-        add_filter('bp_gns_generate_suggestions', array($this, 'maybe_use_ai'), 10, 4);
-    }
-    
-    public function add_ai_topic($topics) {
-        $topics['ai_powered'] = array(
-            'icon' => '🤖',
-            'label' => __('AI Generated', 'bp-ai')
-        );
-        return $topics;
-    }
-    
-    public function maybe_use_ai($suggestions, $topic, $count, $provider) {
-        if ($topic === 'ai_powered' || $provider === 'chatgpt') {
-            return $this->generate_ai_suggestions($topic, $count);
-        }
-        return $suggestions;
-    }
-    
-    public function generate_ai_suggestions($topic, $count) {
-        $api_key = get_option('bp_ai_api_key');
-        
-        if (!$api_key) {
-            return array();
-        }
-        
-        // Call AI API
-        $response = wp_remote_post('https://api.openai.com/v1/chat/completions', array(
-            'headers' => array(
-                'Authorization' => 'Bearer ' . $api_key,
-                'Content-Type' => 'application/json'
-            ),
-            'body' => json_encode(array(
-                'model' => 'gpt-3.5-turbo',
-                'messages' => array(
-                    array(
-                        'role' => 'system',
-                        'content' => 'You are a creative group name generator.'
-                    ),
-                    array(
-                        'role' => 'user',
-                        'content' => "Generate {$count} unique group names for a {$topic} community. 
-                                     Format: JSON array with 'name' and 'description' for each."
-                    )
-                ),
-                'temperature' => 0.8
-            ))
-        ));
-        
-        if (is_wp_error($response)) {
-            return array();
-        }
-        
-        $body = json_decode(wp_remote_retrieve_body($response), true);
-        
-        // Parse and return suggestions
-        return $this->parse_ai_response($body);
-    }
-    
-    private function parse_ai_response($response) {
-        // Parse AI response and format for plugin
-        $suggestions = array();
-        
-        // ... parsing logic ...
-        
-        return $suggestions;
-    }
-}
-
-new BP_AI_Suggestions();
 ```
 
 ## Available Actions
@@ -311,14 +169,12 @@ new BP_AI_Suggestions();
 - `bp_gns_before_suggester` - Before suggester HTML
 - `bp_gns_after_topic_selector` - After topic buttons
 - `bp_gns_after_suggester` - After suggester HTML
-- `bp_gns_custom_ajax_handler` - Handle custom AJAX requests
 
 ## Available Filters
 
 - `bp_gns_available_topics` - Modify available topics
 - `bp_gns_topic_vocabulary` - Modify topic vocabularies
-- `bp_gns_suggestion_providers` - Register suggestion providers
-- `bp_gns_generate_suggestions` - Override suggestion generation
+- `bp_gns_generate_suggestions` - Replace suggestion generation (args: null, topic, count, names already shown)
 - `bp_gns_suggestions_output` - Modify final suggestions
 - `bp_gns_topic_data` - Modify topic data
 - `bp_gns_generate_name` - Modify generated names

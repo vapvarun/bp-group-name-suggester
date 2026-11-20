@@ -8,7 +8,7 @@ Each C and E step is a **customer contract**: what the feature promises and what
 
 D rows are repros of past incidents; the fixture is the contract.
 
-This plugin has one surface: a suggester panel on the BuddyPress Create Group details step, fed by one logged-in AJAX action `suggest_group_names`. A second action, `bp_gns_custom_suggestions`, is an extension point that answers an error unless an add-on hooks `bp_gns_custom_ajax_handler`. It has no settings page, no REST routes, no tables, no options, no cron, no blocks, no shortcodes and no widgets.
+This plugin has one surface: a suggester panel on the BuddyPress Create Group details step, fed by one logged-in AJAX action `suggest_group_names` (its `wp_ajax_nopriv_` twin only answers the session-expired 403). It has no settings page, no REST routes, no tables, no options, no cron, no blocks, no shortcodes and no widgets.
 
 ## Global preconditions
 
@@ -69,10 +69,10 @@ na: owner policy. No migration or batch job.
 Exercise every row at desktop 1440px and mobile 390px.
 
 ### C.suggest.topic
-**What to verify:** as `journey_subscriber`, click a topic: the button shows as pressed (`aria-pressed="true"`, not colour alone), a loading message is announced, and 20 suggestion cards appear, each with a name, a description and a "Use This Name" button. Names are distinct within one response ("Get More" is not de-duplicated against earlier batches).
+**What to verify:** as `journey_subscriber`, click a topic: the button shows as pressed (`aria-pressed="true"`, not colour alone), a loading message is announced, and 20 suggestion cards appear, each with a name, a description and a "Use This Name" button. Names are distinct within one response.
 
 ### C.suggest.more
-**What to verify:** "Get More Suggestions" appends 10 more for the same topic; switching topic clears the grid and loads that topic's names.
+**What to verify:** "Get More Suggestions" appends 10 more for the same topic and never repeats a name already on screen (0 duplicates across 10+ clicks on every topic; the request sends the shown names in `exclude`, one per line). When every name in a topic has been shown (about 160 to 205 clicks; nothing unseen is left at that point) the panel says "That is every name for this topic. Try another topic for more ideas." and Get More is hidden. Switching topic clears the grid and loads that topic's names.
 
 ### C.suggest.use-name
 **What to verify:** clicking a card or its button fills `#group-name` and `#group-desc`; finishing the create flow saves a group with that name and description.
@@ -81,10 +81,10 @@ Exercise every row at desktop 1440px and mobile 390px.
 **What to verify:** post `suggest_group_names` directly with a valid nonce and `count=500`: at most 50 suggestions return. `count=0` or a non-number returns at least one.
 
 ### C.suggest.failure
-**What to verify:** with an expired or wrong nonce the AJAX answers HTTP 403 with "Your session has expired. Reload the page and try again." in `data.message`; the panel shows an error ("Suggestions could not be loaded. Please try again.", since jQuery routes a 403 to its fail handler) plus a "Try again" button, never a silent empty grid. An empty result (for example `bp_gns_suggestions_output` filtered to an empty array) shows "No suggestions found for this topic. Try another topic." An unknown topic key falls back to the Random Mix vocabulary.
+**What to verify:** with an expired or wrong nonce the AJAX answers HTTP 403 with "Your session has expired. Reload the page and try again." in `data.message`; the panel shows that message with no "Try again" and no "Get More", since only a reload can recover. Other failures (500, network) show "Suggestions could not be loaded. Please try again." plus a "Try again" button, never a silent empty grid. An empty result (for example `bp_gns_suggestions_output` filtered to an empty array) shows "No suggestions found for this topic. Try another topic." An unknown topic key falls back to the Random Mix vocabulary.
 
 ### C.suggest.logged-out
-**What to verify:** `suggest_group_names` called without a login gets WordPress's `0` answer (no `wp_ajax_nopriv` handler by design).
+**What to verify:** with the panel open, log out in another tab, then click Get More: the request answers HTTP 403 with the session-expired message, and the panel shows it with Try again and Get More hidden. A bare 400 `0` (nopriv handler missing) is treated the same way by the script.
 
 ### C.admin
 na: owner policy. The plugin adds no admin screens; its settings come from the `bp_gns_settings` filter only.

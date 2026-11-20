@@ -36,6 +36,11 @@ class BP_Group_Name_Suggester {
 	const MAX_SUGGESTIONS = 50;
 
 	/**
+	 * Upper bound for the already-shown names a request may send for deduplication.
+	 */
+	const MAX_EXCLUDE = 3000;
+
+	/**
 	 * Constructor
 	 */
 	public function __construct() {
@@ -71,41 +76,11 @@ class BP_Group_Name_Suggester {
 		// Add hooks.
 		add_action( 'bp_before_group_details_creation_step', array( $this, 'add_name_suggester_section' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
-		// Logged-in only: the suggester lives on the Create Group screen, which guests never reach.
 		add_action( 'wp_ajax_suggest_group_names', array( $this, 'ajax_suggest_group_names' ) );
+		// Guests never reach the Create Group screen, so a logged-out request means the session ended in another tab.
+		add_action( 'wp_ajax_nopriv_suggest_group_names', array( $this, 'ajax_session_expired' ) );
 
-		// Add custom AJAX endpoints for extensibility.
-		add_action( 'wp_ajax_bp_gns_custom_suggestions', array( $this, 'ajax_custom_suggestions' ) );
-
-		// Initialize hooks.
-		$this->init_hooks();
-	}
-
-	/**
-	 * Initialize plugin hooks for extensibility
-	 */
-	private function init_hooks() {
-		// Action hooks.
 		do_action( 'bp_gns_init' );
-
-		// Allow developers to add custom suggestion providers.
-		add_filter( 'bp_gns_suggestion_providers', array( $this, 'register_default_provider' ), 10 );
-	}
-
-	/**
-	 * Register default suggestion provider
-	 *
-	 * @param array $providers Registered suggestion providers.
-	 * @return array
-	 */
-	public function register_default_provider( $providers ) {
-		$providers['default'] = array(
-			'name'     => __( 'Default Generator', 'bp-group-name-suggester' ),
-			'callback' => array( $this, 'generate_group_suggestion' ),
-			'priority' => 10,
-		);
-
-		return $providers;
 	}
 
 	/**
@@ -278,27 +253,28 @@ class BP_Group_Name_Suggester {
 				'bp-group-name-suggester',
 				plugin_dir_url( __FILE__ ) . 'assets/js/script.js',
 				array( 'jquery' ),
-				self::VERSION,
+				$this->asset_version( 'assets/js/script.js' ),
 				true
 			);
 
 			// Localize script with extensible data.
 			$localize_data = array(
-				'ajax_url'  => admin_url( 'admin-ajax.php' ),
-				'nonce'     => wp_create_nonce( 'bp_group_name_suggester_nonce' ),
-				'providers' => $this->get_active_providers(),
-				'settings'  => $this->get_plugin_settings(),
-				'i18n'      => array(
-					'loading' => __( 'Generating suggestions...', 'bp-group-name-suggester' ),
-					'error'   => __( 'Suggestions could not be loaded. Please try again.', 'bp-group-name-suggester' ),
-					'empty'   => __( 'No suggestions found for this topic. Try another topic.', 'bp-group-name-suggester' ),
-					'retry'   => __( 'Try again', 'bp-group-name-suggester' ),
-					'useName' => __( 'Use This Name', 'bp-group-name-suggester' ),
+				'ajax_url' => admin_url( 'admin-ajax.php' ),
+				'nonce'    => wp_create_nonce( 'bp_group_name_suggester_nonce' ),
+				'settings' => $this->get_plugin_settings(),
+				'i18n'     => array(
+					'loading'   => __( 'Generating suggestions...', 'bp-group-name-suggester' ),
+					'error'     => __( 'Suggestions could not be loaded. Please try again.', 'bp-group-name-suggester' ),
+					'expired'   => $this->session_expired_message(),
+					'empty'     => __( 'No suggestions found for this topic. Try another topic.', 'bp-group-name-suggester' ),
+					'exhausted' => __( 'That is every name for this topic. Try another topic for more ideas.', 'bp-group-name-suggester' ),
+					'retry'     => __( 'Try again', 'bp-group-name-suggester' ),
+					'useName'   => __( 'Use This Name', 'bp-group-name-suggester' ),
 					/* translators: %d: number of suggestions. */
-					'loaded'  => __( '%d name suggestions loaded.', 'bp-group-name-suggester' ),
+					'loaded'    => __( '%d name suggestions loaded.', 'bp-group-name-suggester' ),
 					/* translators: %d: number of suggestions. */
-					'added'   => __( '%d more suggestions added.', 'bp-group-name-suggester' ),
-					'applied' => __( 'Name and description filled in.', 'bp-group-name-suggester' ),
+					'added'     => __( '%d more suggestions added.', 'bp-group-name-suggester' ),
+					'applied'   => __( 'Name and description filled in.', 'bp-group-name-suggester' ),
 				),
 			);
 
@@ -312,26 +288,21 @@ class BP_Group_Name_Suggester {
 				'bp-group-name-suggester',
 				plugin_dir_url( __FILE__ ) . 'assets/css/style.css',
 				array(),
-				self::VERSION
+				$this->asset_version( 'assets/css/style.css' )
 			);
 		}
 	}
 
 	/**
-	 * Get active suggestion providers
+	 * Asset version from the file's modified time, so a re-cut busts browser and CDN caches.
+	 *
+	 * @param string $file Path relative to the plugin folder.
+	 * @return string
 	 */
-	private function get_active_providers() {
-		$providers = apply_filters( 'bp_gns_suggestion_providers', array() );
+	private function asset_version( $file ) {
+		$mtime = @filemtime( plugin_dir_path( __FILE__ ) . $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- a missing file falls back to the plugin version.
 
-		$active = array();
-		foreach ( $providers as $key => $provider ) {
-			$active[ $key ] = array(
-				'name'   => $provider['name'],
-				'active' => isset( $provider['active'] ) ? $provider['active'] : true,
-			);
-		}
-
-		return $active;
+		return $mtime ? (string) $mtime : self::VERSION;
 	}
 
 	/**
@@ -341,13 +312,25 @@ class BP_Group_Name_Suggester {
 		$defaults = array(
 			'suggestions_per_load'   => 20,
 			'more_suggestions_count' => 10,
-			'enable_ai'              => false,
-			'ai_provider'            => '',
-			'cache_suggestions'      => true,
-			'cache_duration'         => 3600,
 		);
 
 		return apply_filters( 'bp_gns_settings', $defaults );
+	}
+
+	/**
+	 * Message shown when the login session or the page nonce has expired.
+	 *
+	 * @return string
+	 */
+	private function session_expired_message() {
+		return __( 'Your session has expired. Reload the page and try again.', 'bp-group-name-suggester' );
+	}
+
+	/**
+	 * Answer a logged-out suggestion request: retrying cannot succeed until the member reloads and logs in.
+	 */
+	public function ajax_session_expired() {
+		wp_send_json_error( array( 'message' => $this->session_expired_message() ), 403 );
 	}
 
 	/**
@@ -355,7 +338,7 @@ class BP_Group_Name_Suggester {
 	 */
 	public function ajax_suggest_group_names() {
 		if ( ! check_ajax_referer( 'bp_group_name_suggester_nonce', 'nonce', false ) ) {
-			wp_send_json_error( array( 'message' => __( 'Your session has expired. Reload the page and try again.', 'bp-group-name-suggester' ) ), 403 );
+			$this->ajax_session_expired();
 		}
 
 		$topic = isset( $_POST['topic'] ) && is_string( $_POST['topic'] ) ? sanitize_text_field( wp_unslash( $_POST['topic'] ) ) : 'random';
@@ -365,60 +348,74 @@ class BP_Group_Name_Suggester {
 			wp_send_json_error( array( 'message' => __( 'That topic is not available. Choose another topic.', 'bp-group-name-suggester' ) ), 400 );
 		}
 
-		$count    = isset( $_POST['count'] ) ? absint( wp_unslash( $_POST['count'] ) ) : 20;
-		$count    = max( 1, min( self::MAX_SUGGESTIONS, $count ) );
-		$provider = isset( $_POST['provider'] ) ? sanitize_text_field( wp_unslash( $_POST['provider'] ) ) : 'default';
+		$count = isset( $_POST['count'] ) ? absint( wp_unslash( $_POST['count'] ) ) : 20;
+		$count = max( 1, min( self::MAX_SUGGESTIONS, $count ) );
 
-		// Allow custom suggestion generation.
-		$suggestions = apply_filters( 'bp_gns_generate_suggestions', null, $topic, $count, $provider );
+		// Names already on screen, one per line, so "Get More" never repeats one. One field rather than an
+		// array keeps a long list clear of max_input_vars; the count is capped because it grows with every click.
+		$exclude = array();
+		if ( isset( $_POST['exclude'] ) && is_string( $_POST['exclude'] ) ) {
+			$raw     = array_slice( explode( "\n", sanitize_textarea_field( wp_unslash( $_POST['exclude'] ) ) ), 0, self::MAX_EXCLUDE );
+			$exclude = array_values( array_unique( array_filter( array_map( 'trim', $raw ) ) ) );
+		}
+
+		// Allow custom suggestion generation. A custom generator should skip the names in $exclude.
+		$suggestions = apply_filters( 'bp_gns_generate_suggestions', null, $topic, $count, $exclude );
 
 		if ( is_null( $suggestions ) ) {
 			// Use default generation.
-			$suggestions = $this->generate_topic_based_suggestions( $topic, $count );
+			$suggestions = $this->generate_topic_based_suggestions( $topic, $count, $exclude );
 		}
 
 		// Allow filtering of final suggestions.
-		$suggestions = apply_filters( 'bp_gns_suggestions_output', $suggestions, $topic );
+		$suggestions = (array) apply_filters( 'bp_gns_suggestions_output', $suggestions, $topic );
 
-		wp_send_json_success( $suggestions );
-	}
-
-	/**
-	 * Handle custom AJAX suggestions endpoint
-	 */
-	public function ajax_custom_suggestions() {
-		if ( ! check_ajax_referer( 'bp_group_name_suggester_nonce', 'nonce', false ) ) {
-			wp_send_json_error( array( 'message' => __( 'Your session has expired. Reload the page and try again.', 'bp-group-name-suggester' ) ), 403 );
-		}
-
-		// Allow complete custom handling.
-		do_action( 'bp_gns_custom_ajax_handler', $_POST );
-
-		// Default response.
-		wp_send_json_error( 'No custom handler registered' );
+		wp_send_json_success(
+			array(
+				'suggestions' => array_values( $suggestions ),
+				// A short batch means the topic has run out of new names: the client stops offering "Get More".
+				'exhausted'   => count( $suggestions ) < $count,
+			)
+		);
 	}
 
 	/**
 	 * Generate suggestions based on selected topic
 	 *
-	 * @param string $topic Topic key.
-	 * @param int    $count Number of suggestions to build.
+	 * Random draws first, for variety. Once they stall (a topic that is mostly shown), the rest of the
+	 * vocabulary is walked in full, so a short result means nothing unseen is left.
+	 *
+	 * @param string   $topic   Topic key.
+	 * @param int      $count   Number of suggestions to build.
+	 * @param string[] $exclude Names already shown to the member.
 	 * @return array
 	 */
-	private function generate_topic_based_suggestions( $topic, $count = 20 ) {
+	private function generate_topic_based_suggestions( $topic, $count = 20, $exclude = array() ) {
+		$vocab       = $this->get_vocabulary( $topic );
 		$suggestions = array();
-		$used_names  = array();
+		$used_names  = array_fill_keys( $exclude, true );
+		$found       = 0;
+		$budget      = min( $count * 20, 1000 );
 
-		for ( $i = 0; $i < $count; $i++ ) {
-			$attempt = 0;
-			do {
-				$group_data = $this->generate_group_suggestion( $topic );
-				++$attempt;
-			} while ( in_array( $group_data['name'], $used_names, true ) && $attempt < 10 );
+		while ( $found < $count && $budget-- > 0 ) {
+			$group_data = $this->generate_group_suggestion( $topic, $vocab );
 
-			if ( ! in_array( $group_data['name'], $used_names, true ) ) {
-				$suggestions[] = $group_data;
-				$used_names[]  = $group_data['name'];
+			if ( isset( $used_names[ $group_data['name'] ] ) ) {
+				continue;
+			}
+
+			$used_names[ $group_data['name'] ] = true;
+			$suggestions[]                     = $group_data;
+			++$found;
+		}
+
+		if ( $found < $count ) {
+			$names  = $this->get_all_names( $vocab );
+			$unseen = array_keys( array_diff_key( $names, $used_names ) );
+			shuffle( $unseen );
+
+			foreach ( array_slice( $unseen, 0, $count - $found ) as $name ) {
+				$suggestions[] = $this->generate_group_suggestion( $topic, $vocab, (string) $name, $names[ $name ] );
 			}
 		}
 
@@ -426,41 +423,76 @@ class BP_Group_Name_Suggester {
 	}
 
 	/**
-	 * Generate group name and description based on topic
+	 * Topic vocabulary with the general prefixes mixed in.
 	 *
 	 * @param string $topic Topic key.
 	 * @return array
 	 */
-	private function generate_group_suggestion( $topic ) {
-		// Get topic data with filter.
-		$topic_data = apply_filters( 'bp_gns_topic_data', $this->get_topic_data( $topic ), $topic );
+	private function get_vocabulary( $topic ) {
+		$vocab = apply_filters( 'bp_gns_topic_data', $this->get_topic_data( $topic ), $topic );
 
 		// General prefixes that work with any topic.
-		$general_prefixes = array(
-			'Amazing',
-			'Creative',
-			'Dynamic',
-			'Enthusiastic',
-			'Innovative',
-			'Passionate',
-			'Active',
-			'Dedicated',
-			'Friendly',
-			'United',
+		$vocab['prefixes'] = array_merge(
+			$vocab['prefixes'],
+			array( 'Amazing', 'Creative', 'Dynamic', 'Enthusiastic', 'Innovative', 'Passionate', 'Active', 'Dedicated', 'Friendly', 'United' )
 		);
 
-		// Mix topic-specific and general prefixes.
-		$prefixes = array_merge( $topic_data['prefixes'], $general_prefixes );
+		return $vocab;
+	}
 
-		// Select random elements.
-		$prefix   = $prefixes[ array_rand( $prefixes ) ];
-		$keyword  = $topic_data['keywords'][ array_rand( $topic_data['keywords'] ) ];
-		$noun     = $topic_data['nouns'][ array_rand( $topic_data['nouns'] ) ];
-		$activity = $topic_data['activities'][ array_rand( $topic_data['activities'] ) ];
-		$purpose  = $topic_data['purposes'][ array_rand( $topic_data['purposes'] ) ];
+	/**
+	 * Every name a vocabulary can produce, mapped to the keyword it was built from.
+	 *
+	 * @param array $vocab Topic vocabulary from get_vocabulary().
+	 * @return array<string, string>
+	 */
+	private function get_all_names( $vocab ) {
+		static $cache = array();
 
-		// Generate name with filter.
-		$name = apply_filters( 'bp_gns_generate_name', $this->create_name_pattern( $prefix, $keyword, $noun ), $prefix, $keyword, $noun );
+		$key = md5( (string) wp_json_encode( $vocab ) );
+		if ( isset( $cache[ $key ] ) ) {
+			return $cache[ $key ];
+		}
+
+		$names = array();
+		foreach ( $vocab['prefixes'] as $prefix ) {
+			foreach ( $vocab['keywords'] as $keyword ) {
+				foreach ( $vocab['nouns'] as $noun ) {
+					foreach ( $this->get_name_patterns( $prefix, $keyword, $noun ) as $pattern ) {
+						$name = apply_filters( 'bp_gns_generate_name', $pattern, $prefix, $keyword, $noun );
+						if ( ! isset( $names[ $name ] ) ) {
+							$names[ $name ] = $keyword;
+						}
+					}
+				}
+			}
+		}
+
+		$cache[ $key ] = $names;
+
+		return $names;
+	}
+
+	/**
+	 * Generate group name and description based on topic
+	 *
+	 * @param string      $topic   Topic key.
+	 * @param array       $vocab   Topic vocabulary from get_vocabulary().
+	 * @param string|null $name    A name already chosen from the vocabulary; null draws one at random.
+	 * @param string|null $keyword The keyword that name was built from.
+	 * @return array
+	 */
+	private function generate_group_suggestion( $topic, $vocab, $name = null, $keyword = null ) {
+		if ( null === $name ) {
+			$prefix   = $vocab['prefixes'][ array_rand( $vocab['prefixes'] ) ];
+			$keyword  = $vocab['keywords'][ array_rand( $vocab['keywords'] ) ];
+			$noun     = $vocab['nouns'][ array_rand( $vocab['nouns'] ) ];
+			$patterns = $this->get_name_patterns( $prefix, $keyword, $noun );
+			$name     = apply_filters( 'bp_gns_generate_name', $patterns[ array_rand( $patterns ) ], $prefix, $keyword, $noun );
+		}
+
+		$activity = $vocab['activities'][ array_rand( $vocab['activities'] ) ];
+		$purpose  = $vocab['purposes'][ array_rand( $vocab['purposes'] ) ];
 
 		// Generate description with filter.
 		$description = apply_filters(
@@ -480,15 +512,15 @@ class BP_Group_Name_Suggester {
 	}
 
 	/**
-	 * Create name pattern
+	 * Name patterns for one prefix, keyword and noun.
 	 *
 	 * @param string $prefix  Name prefix.
 	 * @param string $keyword Topic keyword.
 	 * @param string $noun    Group noun.
-	 * @return string
+	 * @return string[]
 	 */
-	private function create_name_pattern( $prefix, $keyword, $noun ) {
-		$patterns = apply_filters(
+	private function get_name_patterns( $prefix, $keyword, $noun ) {
+		return apply_filters(
 			'bp_gns_name_patterns',
 			array(
 				$prefix . ' ' . $keyword . ' ' . $noun,
@@ -502,8 +534,6 @@ class BP_Group_Name_Suggester {
 			$keyword,
 			$noun
 		);
-
-		return $patterns[ array_rand( $patterns ) ];
 	}
 
 	/**
@@ -677,29 +707,6 @@ if ( ! function_exists( 'bp_gns_add_topic' ) ) {
 			function ( $vocab ) use ( $key, $vocabulary ) {
 				$vocab[ $key ] = $vocabulary;
 				return $vocab;
-			}
-		);
-	}
-}
-
-if ( ! function_exists( 'bp_gns_register_ai_provider' ) ) {
-	/**
-	 * Register an AI provider
-	 *
-	 * @param string   $key      Provider key.
-	 * @param string   $name     Provider name.
-	 * @param callable $callback Suggestion callback.
-	 */
-	function bp_gns_register_ai_provider( $key, $name, $callback ) {
-		add_filter(
-			'bp_gns_suggestion_providers',
-			function ( $providers ) use ( $key, $name, $callback ) {
-				$providers[ $key ] = array(
-					'name'     => $name,
-					'callback' => $callback,
-					'priority' => 20,
-				);
-				return $providers;
 			}
 		);
 	}

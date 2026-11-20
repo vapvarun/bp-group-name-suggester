@@ -69,6 +69,14 @@ jQuery(document).ready(function($) {
         
         announce('');
         
+        // Names already on screen: the server skips them, and the loop below drops any that slip through.
+        var shown = {};
+        if (!initial) {
+            $('.suggestion-card').each(function() {
+                shown[$(this).attr('data-name')] = true;
+            });
+        }
+        
         $.ajax({
             url: bpGroupNameSuggester.ajax_url,
             type: 'POST',
@@ -76,6 +84,7 @@ jQuery(document).ready(function($) {
                 action: 'suggest_group_names',
                 topic: topic,
                 count: initial ? initialCount : moreCount,
+                exclude: Object.keys(shown).join('\n'),
                 nonce: bpGroupNameSuggester.nonce
             }
         }).done(function(response) {
@@ -90,23 +99,33 @@ jQuery(document).ready(function($) {
             }
             
             var grid = $('.suggestions-grid');
+            var data = response.data || {};
+            // A page still running the old script, or an old cached copy of this one, may see either shape.
+            var list = Array.isArray(data) ? data : (data.suggestions || []);
+            var fresh = $.grep(list, function(suggestion) {
+                if (!suggestion || !suggestion.name || shown[suggestion.name]) {
+                    return false;
+                }
+                shown[suggestion.name] = true;
+                return true;
+            });
             
             if (initial) {
                 grid.empty();
             }
             
-            if (!response.data || !response.data.length) {
-                if (initial) {
-                    setStatus(i18n.empty);
-                    announce(i18n.empty);
-                    moreButton.hide();
-                }
+            if (!fresh.length) {
+                // Nothing new: an empty first load, or a topic that has run out of names.
+                var message = initial ? i18n.empty : i18n.exhausted;
+                setStatus(message);
+                announce(message);
+                moreButton.hide();
                 return;
             }
             
-            setStatus('');
+            setStatus(data.exhausted ? i18n.exhausted : '');
             
-            $.each(response.data, function(index, suggestion) {
+            $.each(fresh, function(index, suggestion) {
                 // Build the card from text nodes: provider output is never parsed as HTML.
                 // Each button names its card, so a screen reader hears which name it applies.
                 var titleId = 'bp-gns-name-' + (++cardCount);
@@ -125,17 +144,20 @@ jQuery(document).ready(function($) {
                 }
             });
             
-            announce(withCount(initial ? i18n.loaded : i18n.added, response.data.length));
-            moreButton.show();
+            announce(withCount(initial ? i18n.loaded : i18n.added, fresh.length) + (data.exhausted ? ' ' + i18n.exhausted : ''));
+            moreButton.toggle(!data.exhausted);
         }).fail(function(jqXHR) {
             if (topic !== selectedTopic) {
                 return;
             }
             
-            // A 403 nonce failure carries the server's message; network errors and non-JSON bodies have none.
+            // A 403 carries the server's message; network errors and non-JSON bodies have none.
             var json = jqXHR && jqXHR.responseJSON;
-            // 403 means the page nonce expired: retrying would resend it, so the member must reload.
-            showError(json && json.data && json.data.message, jqXHR && jqXHR.status === 403);
+            // 403 (nonce or login expired) or WordPress's bare "0" for a logged-out request: retrying cannot
+            // succeed, so the member must reload.
+            var expired = jqXHR && (jqXHR.status === 403 || (jqXHR.status === 400 && $.trim(jqXHR.responseText) === '0'));
+            var message = json && json.data && json.data.message;
+            showError(message || (expired ? i18n.expired : ''), expired);
         }).always(function() {
             moreButton.prop('disabled', false);
             spinner.hide();
