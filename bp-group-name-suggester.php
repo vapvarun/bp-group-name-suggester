@@ -253,7 +253,7 @@ class BP_Group_Name_Suggester {
 				'bp-group-name-suggester',
 				plugin_dir_url( __FILE__ ) . 'assets/js/script.js',
 				array( 'jquery' ),
-				self::VERSION,
+				$this->asset_version( 'assets/js/script.js' ),
 				true
 			);
 
@@ -288,9 +288,21 @@ class BP_Group_Name_Suggester {
 				'bp-group-name-suggester',
 				plugin_dir_url( __FILE__ ) . 'assets/css/style.css',
 				array(),
-				self::VERSION
+				$this->asset_version( 'assets/css/style.css' )
 			);
 		}
+	}
+
+	/**
+	 * Asset version from the file's modified time, so a re-cut busts browser and CDN caches.
+	 *
+	 * @param string $file Path relative to the plugin folder.
+	 * @return string
+	 */
+	private function asset_version( $file ) {
+		$mtime = @filemtime( plugin_dir_path( __FILE__ ) . $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- a missing file falls back to the plugin version.
+
+		return $mtime ? (string) $mtime : self::VERSION;
 	}
 
 	/**
@@ -370,23 +382,23 @@ class BP_Group_Name_Suggester {
 	/**
 	 * Generate suggestions based on selected topic
 	 *
+	 * Random draws first, for variety. Once they stall (a topic that is mostly shown), the rest of the
+	 * vocabulary is walked in full, so a short result means nothing unseen is left.
+	 *
 	 * @param string   $topic   Topic key.
 	 * @param int      $count   Number of suggestions to build.
 	 * @param string[] $exclude Names already shown to the member.
 	 * @return array
 	 */
 	private function generate_topic_based_suggestions( $topic, $count = 20, $exclude = array() ) {
+		$vocab       = $this->get_vocabulary( $topic );
 		$suggestions = array();
 		$used_names  = array_fill_keys( $exclude, true );
-
-		// ponytail: random draws with a per-batch budget; a batch that comes back short treats the topic as used up.
-		// Enumerate the vocabulary instead if a topic ever needs a guaranteed last name.
-		$budget = $count * 200;
-
-		$found  = 0;
+		$found       = 0;
+		$budget      = min( $count * 20, 1000 );
 
 		while ( $found < $count && $budget-- > 0 ) {
-			$group_data = $this->generate_group_suggestion( $topic );
+			$group_data = $this->generate_group_suggestion( $topic, $vocab );
 
 			if ( isset( $used_names[ $group_data['name'] ] ) ) {
 				continue;
@@ -397,45 +409,90 @@ class BP_Group_Name_Suggester {
 			++$found;
 		}
 
+		if ( $found < $count ) {
+			$names  = $this->get_all_names( $vocab );
+			$unseen = array_keys( array_diff_key( $names, $used_names ) );
+			shuffle( $unseen );
+
+			foreach ( array_slice( $unseen, 0, $count - $found ) as $name ) {
+				$suggestions[] = $this->generate_group_suggestion( $topic, $vocab, (string) $name, $names[ $name ] );
+			}
+		}
+
 		return $suggestions;
+	}
+
+	/**
+	 * Topic vocabulary with the general prefixes mixed in.
+	 *
+	 * @param string $topic Topic key.
+	 * @return array
+	 */
+	private function get_vocabulary( $topic ) {
+		$vocab = apply_filters( 'bp_gns_topic_data', $this->get_topic_data( $topic ), $topic );
+
+		// General prefixes that work with any topic.
+		$vocab['prefixes'] = array_merge(
+			$vocab['prefixes'],
+			array( 'Amazing', 'Creative', 'Dynamic', 'Enthusiastic', 'Innovative', 'Passionate', 'Active', 'Dedicated', 'Friendly', 'United' )
+		);
+
+		return $vocab;
+	}
+
+	/**
+	 * Every name a vocabulary can produce, mapped to the keyword it was built from.
+	 *
+	 * @param array $vocab Topic vocabulary from get_vocabulary().
+	 * @return array<string, string>
+	 */
+	private function get_all_names( $vocab ) {
+		static $cache = array();
+
+		$key = md5( (string) wp_json_encode( $vocab ) );
+		if ( isset( $cache[ $key ] ) ) {
+			return $cache[ $key ];
+		}
+
+		$names = array();
+		foreach ( $vocab['prefixes'] as $prefix ) {
+			foreach ( $vocab['keywords'] as $keyword ) {
+				foreach ( $vocab['nouns'] as $noun ) {
+					foreach ( $this->get_name_patterns( $prefix, $keyword, $noun ) as $pattern ) {
+						$name = apply_filters( 'bp_gns_generate_name', $pattern, $prefix, $keyword, $noun );
+						if ( ! isset( $names[ $name ] ) ) {
+							$names[ $name ] = $keyword;
+						}
+					}
+				}
+			}
+		}
+
+		$cache[ $key ] = $names;
+
+		return $names;
 	}
 
 	/**
 	 * Generate group name and description based on topic
 	 *
-	 * @param string $topic Topic key.
+	 * @param string      $topic   Topic key.
+	 * @param array       $vocab   Topic vocabulary from get_vocabulary().
+	 * @param string|null $name    A name already chosen from the vocabulary; null draws one at random.
+	 * @param string|null $keyword The keyword that name was built from.
 	 * @return array
 	 */
-	private function generate_group_suggestion( $topic ) {
-		// Get topic data with filter.
-		$topic_data = apply_filters( 'bp_gns_topic_data', $this->get_topic_data( $topic ), $topic );
+	private function generate_group_suggestion( $topic, $vocab, $name = null, $keyword = null ) {
+		if ( null === $name ) {
+			$prefix   = $vocab['prefixes'][ array_rand( $vocab['prefixes'] ) ];
+			$keyword  = $vocab['keywords'][ array_rand( $vocab['keywords'] ) ];
+			$noun     = $vocab['nouns'][ array_rand( $vocab['nouns'] ) ];
+			$patterns = $this->get_name_patterns( $prefix, $keyword, $noun );
+			$name     = apply_filters( 'bp_gns_generate_name', $patterns[ array_rand( $patterns ) ], $prefix, $keyword, $noun );
+		}
 
-		// General prefixes that work with any topic.
-		$general_prefixes = array(
-			'Amazing',
-			'Creative',
-			'Dynamic',
-			'Enthusiastic',
-			'Innovative',
-			'Passionate',
-			'Active',
-			'Dedicated',
-			'Friendly',
-			'United',
-		);
-
-		// Mix topic-specific and general prefixes.
-		$prefixes = array_merge( $topic_data['prefixes'], $general_prefixes );
-
-		// Select random elements.
-		$prefix   = $prefixes[ array_rand( $prefixes ) ];
-		$keyword  = $topic_data['keywords'][ array_rand( $topic_data['keywords'] ) ];
-		$noun     = $topic_data['nouns'][ array_rand( $topic_data['nouns'] ) ];
-		$activity = $topic_data['activities'][ array_rand( $topic_data['activities'] ) ];
-		$purpose  = $topic_data['purposes'][ array_rand( $topic_data['purposes'] ) ];
-
-		// Generate name with filter.
-		$name = apply_filters( 'bp_gns_generate_name', $this->create_name_pattern( $prefix, $keyword, $noun ), $prefix, $keyword, $noun );
+		$activity = $vocab['activities'][ array_rand( $vocab['activities'] ) ];
+		$purpose  = $vocab['purposes'][ array_rand( $vocab['purposes'] ) ];
 
 		// Generate description with filter.
 		$description = apply_filters(
@@ -455,15 +512,15 @@ class BP_Group_Name_Suggester {
 	}
 
 	/**
-	 * Create name pattern
+	 * Name patterns for one prefix, keyword and noun.
 	 *
 	 * @param string $prefix  Name prefix.
 	 * @param string $keyword Topic keyword.
 	 * @param string $noun    Group noun.
-	 * @return string
+	 * @return string[]
 	 */
-	private function create_name_pattern( $prefix, $keyword, $noun ) {
-		$patterns = apply_filters(
+	private function get_name_patterns( $prefix, $keyword, $noun ) {
+		return apply_filters(
 			'bp_gns_name_patterns',
 			array(
 				$prefix . ' ' . $keyword . ' ' . $noun,
@@ -477,8 +534,6 @@ class BP_Group_Name_Suggester {
 			$keyword,
 			$noun
 		);
-
-		return $patterns[ array_rand( $patterns ) ];
 	}
 
 	/**

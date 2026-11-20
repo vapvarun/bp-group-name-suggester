@@ -72,7 +72,7 @@ Exercise every row at desktop 1440px and mobile 390px.
 **What to verify:** as `journey_subscriber`, click a topic: the button shows as pressed (`aria-pressed="true"`, not colour alone), a loading message is announced, and 20 suggestion cards appear, each with a name, a description and a "Use This Name" button. Names are distinct within one response.
 
 ### C.suggest.more
-**What to verify:** "Get More Suggestions" appends 10 more for the same topic and never repeats a name already on screen (0 duplicates across 10+ clicks on every topic; the request sends the shown names in `exclude`, one per line). When a topic runs out (about 150 to 200 clicks) the panel says "That is every name for this topic. Try another topic for more ideas." and Get More is hidden. Switching topic clears the grid and loads that topic's names.
+**What to verify:** "Get More Suggestions" appends 10 more for the same topic and never repeats a name already on screen (0 duplicates across 10+ clicks on every topic; the request sends the shown names in `exclude`, one per line). When every name in a topic has been shown (about 160 to 205 clicks; nothing unseen is left at that point) the panel says "That is every name for this topic. Try another topic for more ideas." and Get More is hidden. Switching topic clears the grid and loads that topic's names.
 
 ### C.suggest.use-name
 **What to verify:** clicking a card or its button fills `#group-name` and `#group-desc`; finishing the create flow saves a group with that name and description.

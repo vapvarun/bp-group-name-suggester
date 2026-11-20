@@ -100,7 +100,9 @@ jQuery(document).ready(function($) {
             
             var grid = $('.suggestions-grid');
             var data = response.data || {};
-            var fresh = $.grep(data.suggestions || [], function(suggestion) {
+            // A page still running the old script, or an old cached copy of this one, may see either shape.
+            var list = Array.isArray(data) ? data : (data.suggestions || []);
+            var fresh = $.grep(list, function(suggestion) {
                 if (!suggestion || !suggestion.name || shown[suggestion.name]) {
                     return false;
                 }
