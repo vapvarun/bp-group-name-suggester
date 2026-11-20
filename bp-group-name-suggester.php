@@ -36,6 +36,11 @@ class BP_Group_Name_Suggester {
 	const MAX_SUGGESTIONS = 50;
 
 	/**
+	 * Upper bound for the already-shown names a request may send for deduplication.
+	 */
+	const MAX_EXCLUDE = 3000;
+
+	/**
 	 * Constructor
 	 */
 	public function __construct() {
@@ -71,41 +76,11 @@ class BP_Group_Name_Suggester {
 		// Add hooks.
 		add_action( 'bp_before_group_details_creation_step', array( $this, 'add_name_suggester_section' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
-		// Logged-in only: the suggester lives on the Create Group screen, which guests never reach.
 		add_action( 'wp_ajax_suggest_group_names', array( $this, 'ajax_suggest_group_names' ) );
+		// Guests never reach the Create Group screen, so a logged-out request means the session ended in another tab.
+		add_action( 'wp_ajax_nopriv_suggest_group_names', array( $this, 'ajax_session_expired' ) );
 
-		// Add custom AJAX endpoints for extensibility.
-		add_action( 'wp_ajax_bp_gns_custom_suggestions', array( $this, 'ajax_custom_suggestions' ) );
-
-		// Initialize hooks.
-		$this->init_hooks();
-	}
-
-	/**
-	 * Initialize plugin hooks for extensibility
-	 */
-	private function init_hooks() {
-		// Action hooks.
 		do_action( 'bp_gns_init' );
-
-		// Allow developers to add custom suggestion providers.
-		add_filter( 'bp_gns_suggestion_providers', array( $this, 'register_default_provider' ), 10 );
-	}
-
-	/**
-	 * Register default suggestion provider
-	 *
-	 * @param array $providers Registered suggestion providers.
-	 * @return array
-	 */
-	public function register_default_provider( $providers ) {
-		$providers['default'] = array(
-			'name'     => __( 'Default Generator', 'bp-group-name-suggester' ),
-			'callback' => array( $this, 'generate_group_suggestion' ),
-			'priority' => 10,
-		);
-
-		return $providers;
 	}
 
 	/**
@@ -284,21 +259,22 @@ class BP_Group_Name_Suggester {
 
 			// Localize script with extensible data.
 			$localize_data = array(
-				'ajax_url'  => admin_url( 'admin-ajax.php' ),
-				'nonce'     => wp_create_nonce( 'bp_group_name_suggester_nonce' ),
-				'providers' => $this->get_active_providers(),
-				'settings'  => $this->get_plugin_settings(),
-				'i18n'      => array(
-					'loading' => __( 'Generating suggestions...', 'bp-group-name-suggester' ),
-					'error'   => __( 'Suggestions could not be loaded. Please try again.', 'bp-group-name-suggester' ),
-					'empty'   => __( 'No suggestions found for this topic. Try another topic.', 'bp-group-name-suggester' ),
-					'retry'   => __( 'Try again', 'bp-group-name-suggester' ),
-					'useName' => __( 'Use This Name', 'bp-group-name-suggester' ),
+				'ajax_url' => admin_url( 'admin-ajax.php' ),
+				'nonce'    => wp_create_nonce( 'bp_group_name_suggester_nonce' ),
+				'settings' => $this->get_plugin_settings(),
+				'i18n'     => array(
+					'loading'   => __( 'Generating suggestions...', 'bp-group-name-suggester' ),
+					'error'     => __( 'Suggestions could not be loaded. Please try again.', 'bp-group-name-suggester' ),
+					'expired'   => $this->session_expired_message(),
+					'empty'     => __( 'No suggestions found for this topic. Try another topic.', 'bp-group-name-suggester' ),
+					'exhausted' => __( 'That is every name for this topic. Try another topic for more ideas.', 'bp-group-name-suggester' ),
+					'retry'     => __( 'Try again', 'bp-group-name-suggester' ),
+					'useName'   => __( 'Use This Name', 'bp-group-name-suggester' ),
 					/* translators: %d: number of suggestions. */
-					'loaded'  => __( '%d name suggestions loaded.', 'bp-group-name-suggester' ),
+					'loaded'    => __( '%d name suggestions loaded.', 'bp-group-name-suggester' ),
 					/* translators: %d: number of suggestions. */
-					'added'   => __( '%d more suggestions added.', 'bp-group-name-suggester' ),
-					'applied' => __( 'Name and description filled in.', 'bp-group-name-suggester' ),
+					'added'     => __( '%d more suggestions added.', 'bp-group-name-suggester' ),
+					'applied'   => __( 'Name and description filled in.', 'bp-group-name-suggester' ),
 				),
 			);
 
@@ -318,36 +294,31 @@ class BP_Group_Name_Suggester {
 	}
 
 	/**
-	 * Get active suggestion providers
-	 */
-	private function get_active_providers() {
-		$providers = apply_filters( 'bp_gns_suggestion_providers', array() );
-
-		$active = array();
-		foreach ( $providers as $key => $provider ) {
-			$active[ $key ] = array(
-				'name'   => $provider['name'],
-				'active' => isset( $provider['active'] ) ? $provider['active'] : true,
-			);
-		}
-
-		return $active;
-	}
-
-	/**
 	 * Get plugin settings
 	 */
 	private function get_plugin_settings() {
 		$defaults = array(
 			'suggestions_per_load'   => 20,
 			'more_suggestions_count' => 10,
-			'enable_ai'              => false,
-			'ai_provider'            => '',
-			'cache_suggestions'      => true,
-			'cache_duration'         => 3600,
 		);
 
 		return apply_filters( 'bp_gns_settings', $defaults );
+	}
+
+	/**
+	 * Message shown when the login session or the page nonce has expired.
+	 *
+	 * @return string
+	 */
+	private function session_expired_message() {
+		return __( 'Your session has expired. Reload the page and try again.', 'bp-group-name-suggester' );
+	}
+
+	/**
+	 * Answer a logged-out suggestion request: retrying cannot succeed until the member reloads and logs in.
+	 */
+	public function ajax_session_expired() {
+		wp_send_json_error( array( 'message' => $this->session_expired_message() ), 403 );
 	}
 
 	/**
@@ -355,7 +326,7 @@ class BP_Group_Name_Suggester {
 	 */
 	public function ajax_suggest_group_names() {
 		if ( ! check_ajax_referer( 'bp_group_name_suggester_nonce', 'nonce', false ) ) {
-			wp_send_json_error( array( 'message' => __( 'Your session has expired. Reload the page and try again.', 'bp-group-name-suggester' ) ), 403 );
+			$this->ajax_session_expired();
 		}
 
 		$topic = isset( $_POST['topic'] ) && is_string( $_POST['topic'] ) ? sanitize_text_field( wp_unslash( $_POST['topic'] ) ) : 'random';
@@ -365,61 +336,65 @@ class BP_Group_Name_Suggester {
 			wp_send_json_error( array( 'message' => __( 'That topic is not available. Choose another topic.', 'bp-group-name-suggester' ) ), 400 );
 		}
 
-		$count    = isset( $_POST['count'] ) ? absint( wp_unslash( $_POST['count'] ) ) : 20;
-		$count    = max( 1, min( self::MAX_SUGGESTIONS, $count ) );
-		$provider = isset( $_POST['provider'] ) ? sanitize_text_field( wp_unslash( $_POST['provider'] ) ) : 'default';
+		$count = isset( $_POST['count'] ) ? absint( wp_unslash( $_POST['count'] ) ) : 20;
+		$count = max( 1, min( self::MAX_SUGGESTIONS, $count ) );
 
-		// Allow custom suggestion generation.
-		$suggestions = apply_filters( 'bp_gns_generate_suggestions', null, $topic, $count, $provider );
+		// Names already on screen, one per line, so "Get More" never repeats one. One field rather than an
+		// array keeps a long list clear of max_input_vars; the count is capped because it grows with every click.
+		$exclude = array();
+		if ( isset( $_POST['exclude'] ) && is_string( $_POST['exclude'] ) ) {
+			$raw     = array_slice( explode( "\n", sanitize_textarea_field( wp_unslash( $_POST['exclude'] ) ) ), 0, self::MAX_EXCLUDE );
+			$exclude = array_values( array_unique( array_filter( array_map( 'trim', $raw ) ) ) );
+		}
+
+		// Allow custom suggestion generation. A custom generator should skip the names in $exclude.
+		$suggestions = apply_filters( 'bp_gns_generate_suggestions', null, $topic, $count, $exclude );
 
 		if ( is_null( $suggestions ) ) {
 			// Use default generation.
-			$suggestions = $this->generate_topic_based_suggestions( $topic, $count );
+			$suggestions = $this->generate_topic_based_suggestions( $topic, $count, $exclude );
 		}
 
 		// Allow filtering of final suggestions.
-		$suggestions = apply_filters( 'bp_gns_suggestions_output', $suggestions, $topic );
+		$suggestions = (array) apply_filters( 'bp_gns_suggestions_output', $suggestions, $topic );
 
-		wp_send_json_success( $suggestions );
-	}
-
-	/**
-	 * Handle custom AJAX suggestions endpoint
-	 */
-	public function ajax_custom_suggestions() {
-		if ( ! check_ajax_referer( 'bp_group_name_suggester_nonce', 'nonce', false ) ) {
-			wp_send_json_error( array( 'message' => __( 'Your session has expired. Reload the page and try again.', 'bp-group-name-suggester' ) ), 403 );
-		}
-
-		// Allow complete custom handling.
-		do_action( 'bp_gns_custom_ajax_handler', $_POST );
-
-		// Default response.
-		wp_send_json_error( 'No custom handler registered' );
+		wp_send_json_success(
+			array(
+				'suggestions' => array_values( $suggestions ),
+				// A short batch means the topic has run out of new names: the client stops offering "Get More".
+				'exhausted'   => count( $suggestions ) < $count,
+			)
+		);
 	}
 
 	/**
 	 * Generate suggestions based on selected topic
 	 *
-	 * @param string $topic Topic key.
-	 * @param int    $count Number of suggestions to build.
+	 * @param string   $topic   Topic key.
+	 * @param int      $count   Number of suggestions to build.
+	 * @param string[] $exclude Names already shown to the member.
 	 * @return array
 	 */
-	private function generate_topic_based_suggestions( $topic, $count = 20 ) {
+	private function generate_topic_based_suggestions( $topic, $count = 20, $exclude = array() ) {
 		$suggestions = array();
-		$used_names  = array();
+		$used_names  = array_fill_keys( $exclude, true );
 
-		for ( $i = 0; $i < $count; $i++ ) {
-			$attempt = 0;
-			do {
-				$group_data = $this->generate_group_suggestion( $topic );
-				++$attempt;
-			} while ( in_array( $group_data['name'], $used_names, true ) && $attempt < 10 );
+		// ponytail: random draws with a per-batch budget; a batch that comes back short treats the topic as used up.
+		// Enumerate the vocabulary instead if a topic ever needs a guaranteed last name.
+		$budget = $count * 200;
 
-			if ( ! in_array( $group_data['name'], $used_names, true ) ) {
-				$suggestions[] = $group_data;
-				$used_names[]  = $group_data['name'];
+		$found  = 0;
+
+		while ( $found < $count && $budget-- > 0 ) {
+			$group_data = $this->generate_group_suggestion( $topic );
+
+			if ( isset( $used_names[ $group_data['name'] ] ) ) {
+				continue;
 			}
+
+			$used_names[ $group_data['name'] ] = true;
+			$suggestions[]                     = $group_data;
+			++$found;
 		}
 
 		return $suggestions;
@@ -677,29 +652,6 @@ if ( ! function_exists( 'bp_gns_add_topic' ) ) {
 			function ( $vocab ) use ( $key, $vocabulary ) {
 				$vocab[ $key ] = $vocabulary;
 				return $vocab;
-			}
-		);
-	}
-}
-
-if ( ! function_exists( 'bp_gns_register_ai_provider' ) ) {
-	/**
-	 * Register an AI provider
-	 *
-	 * @param string   $key      Provider key.
-	 * @param string   $name     Provider name.
-	 * @param callable $callback Suggestion callback.
-	 */
-	function bp_gns_register_ai_provider( $key, $name, $callback ) {
-		add_filter(
-			'bp_gns_suggestion_providers',
-			function ( $providers ) use ( $key, $name, $callback ) {
-				$providers[ $key ] = array(
-					'name'     => $name,
-					'callback' => $callback,
-					'priority' => 20,
-				);
-				return $providers;
 			}
 		);
 	}

@@ -102,7 +102,7 @@ Absolutely! The name suggester works for all group types - public, private, and 
 
 = Is there a limit to how many suggestions I can generate? =
 
-No, you can generate unlimited suggestions by using the "Get More Suggestions" button.
+Each topic has about 2,000 name combinations. "Get More Suggestions" keeps adding names you have not seen yet, and when a topic runs out the panel says so and suggests another topic.
 
 == Screenshots ==
 
@@ -131,8 +131,14 @@ No, you can generate unlimited suggestions by using the "Get More Suggestions" b
 * Fix      - A slow response for a previous topic no longer replaces the suggestions for the topic just chosen.
 * Fix      - Keyboard focus stays on the topic list after Try again instead of being lost.
 * Fix      - The session-expired message shows when a suggestion request fails.
+* Fix      - Get More Suggestions never repeats a name already on screen.
+* Fix      - When a topic runs out of new names the panel says so and hides Get More Suggestions.
+* Fix      - Logging out in another tab shows the session-expired message and hides Try again and Get More Suggestions.
+* Fix      - Removed AI, provider and caching settings that never did anything.
 * Security - Unknown topics are rejected instead of being echoed into every suggestion.
 * Dev      - Passes PHP lint on 8.1 to 8.5 with no deprecations from the plugin.
+* Dev      - Removed bp_gns_register_ai_provider(), the bp_gns_suggestion_providers filter, the bp_gns_custom_suggestions AJAX action with its bp_gns_custom_ajax_handler hook, and the enable_ai, ai_provider, cache_suggestions and cache_duration keys of bp_gns_settings. None of them changed the suggestions.
+* Dev      - The fourth argument of bp_gns_generate_suggestions is now the list of names already shown, replacing the unused provider key; the AJAX response data is now an object with suggestions and exhausted.
 
 = 1.0.0 =
 * Initial release
